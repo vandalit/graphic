@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Flujo para Vender tu Propiedad Rápido | Vstone Propiedades</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos base */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            color: #2d3748;
+        }
+        .infografia-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        .logo {
+            width: 120px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        .flow-container {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+        .step-number {
+            background: #ecc94b;
+            color: #975a16;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-right: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .step-content {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            flex: 1;
+            border-left: 4px solid #4299e1;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2b6cb0;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .step-title i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        .step-desc {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .step-highlight {
+            background: #ebf8ff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+            display: inline-block;
+            border-left: 3px solid #3182ce;
+        }
+        .timeline {
+            position: absolute;
+            left: 20px;
+            top: 50px;
+            bottom: -30px;
+            width: 2px;
+            background: #cbd5e0;
+            z-index: 1;
+        }
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+        .cta-button {
+            background: #ecc94b;
+            color: #975a16;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        .cta-button:hover {
+            background: #f6e05e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(236, 201, 75, 0.3);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .stat-box {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .stat-icon {
+            font-size: 24px;
+            color: #3182ce;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin: 5px 0;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="infografia-container">
+        <div class="header">
+            <img src="./assets/img/Vstone-1-02.png" alt="Vstone Propiedades" class="logo">
+            <h1>Flujo para Vender tu Propiedad Rápido</h1>
+            <p class="subtitle">Guía visual paso a paso basada en +200 transacciones exitosas</p>
+        </div>
+
+        <div class="flow-container">
+            <!-- Paso 1 -->
+            <div class="flow-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3 class="step-title"><i class="fas fa-clipboard-check"></i> Preparación del Inmueble</h3>
+                    <p class="step-desc">Reparaciones menores, limpieza profunda y home staging para maximizar el valor percibido.</p>
+                    <div class="step-highlight">
+                        <strong>Dato clave:</strong> Propiedades bien preparadas se venden un <strong>30% más rápido</strong>.
+                    </div>
+                </div>
+                <div class="timeline"></div>
+            </div>
+
+            <!-- Paso 2 -->
+            <div class="flow-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3 class="step-title"><i class="fas fa-search-dollar"></i> Valoración Precisa</h3>
+                    <p class="step-desc">Análisis comparativo de mercado y tasación profesional para fijar el precio competitivo.</p>
+                </div>
+                <div class="timeline"></div>
+            </div>
+
+            <!-- Paso 3 -->
+            <div class="flow-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3 class="step-title"><i class="fas fa-camera"></i> Fotografía Profesional</h3>
+                    <p class="step-desc">Imágenes HD y tour virtual 360° para atraer un <strong>50% más de interesados</strong>.</p>
+                </div>
+                <div class="timeline"></div>
+            </div>
+
+            <!-- Paso 4 -->
+            <div class="flow-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3 class="step-title"><i class="fas fa-bullhorn"></i> Publicación Multiplataforma</h3>
+                    <p class="step-desc">Portal Inmobiliario, redes sociales y grupos estratégicos para maximizar alcance.</p>
+                </div>
+                <div class="timeline"></div>
+            </div>
+
+            <!-- Paso 5 -->
+            <div class="flow-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3 class="step-title"><i class="fas fa-handshake"></i> Negociación Ágil</h3>
+                    <p class="step-desc">Técnicas probadas para gestionar objeciones y cerrar ofertas competitivas.</p>
+                </div>
+                <div class="timeline"></div>
+            </div>
+
+            <!-- Paso 6 -->
+            <div class="flow-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h3 class="step-title"><i class="fas fa-file-contract"></i> Cierre Legal Seguro</h3>
+                    <p class="step-desc">Revisión de documentos con notario y firma de escrituración ante el Conservador.</p>
+                    <div class="step-highlight">
+                        <strong>Tiempo promedio en Chile:</strong> 15-30 días desde la oferta aceptada.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-value">72%</div>
+                    <div class="stat-label">Venden en <45 días*</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="stat-value">+5%</div>
+                    <div class="stat-label">Mejor precio con staging</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-value">3x</div>
+                    <div class="stat-label">Más visitas con precio estratégico</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Vstone Propiedades | *Fuente: CChC 2024</p>
+            <a href="https://vstone.cl/asesoria" class="cta-button">
+                <i class="fas fa-calendar-alt"></i> Agenda Asesoría Gratis
+            </a>
+        </div>
+    </div>
+</body>
+</html>
