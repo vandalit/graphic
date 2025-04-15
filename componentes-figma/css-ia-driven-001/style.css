@@ -1,0 +1,189 @@
+/* Estilos base */
+.experience-card {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+  }
+  
+  .experience-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  
+  /* Encabezado */
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .company-logo {
+    margin-right: 15px;
+  }
+  
+  .company-logo img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: contain;
+  }
+  
+  .company-info {
+    flex: 1;
+  }
+  
+  .company-name {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .job-title {
+    margin: 5px 0;
+    font-size: 1rem;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .job-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #777;
+  }
+  
+  /* Cuerpo */
+  .card-body {
+    padding: 20px;
+  }
+  
+  .job-description, .project-scope {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .job-highlights, .project-results, .responsibilities, .academic-output {
+    margin: 20px 0;
+  }
+  
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+    color: #444;
+  }
+  
+  ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+  
+  ul li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  
+  .project-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+  }
+  
+  .detail {
+    font-size: 0.9rem;
+  }
+  
+  .detail-label {
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .detail-value {
+    color: #666;
+  }
+  
+  .skills-used {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  
+  .skill-tag {
+    background: #f0f7ff;
+    color: #0066cc;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  /* Pie de card */
+  .card-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-footer a {
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  
+  .reference-link, .testimonial-link, .supervisor-link {
+    color: #666;
+  }
+  
+  .reference-link:hover, .testimonial-link:hover, .supervisor-link:hover {
+    color: #0066cc;
+  }
+  
+  .project-link, .case-study-link, .paper-link {
+    color: #0066cc;
+    font-weight: 500;
+  }
+  
+  /* Variantes específicas */
+  .full-time {
+    border-left: 4px solid #0066cc;
+  }
+  
+  .project-based {
+    border-left: 4px solid #00a86b;
+  }
+  
+  .part-time {
+    border-left: 4px solid #ff6b00;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .company-logo {
+      margin-bottom: 10px;
+    }
+    
+    .job-meta {
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .card-footer {
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+    }
+  }
