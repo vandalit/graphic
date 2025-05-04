@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Countdown</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f8f4e8;
+            overflow: hidden;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 1080px;
+            height: 1920px;
+            perspective: 2000px;
+        }
+
+        .number {
+            position: absolute;
+            font-size: 500px;
+            font-weight: 900;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            text-shadow: 15px 15px 30px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: center bottom;
+            z-index: 10;
+        }
+
+        .active {
+            opacity: 1;
+            z-index: 20;
+            color: #FF4500; /* Naranja intenso */
+            filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.4));
+        }
+
+        .inactive {
+            color: #FFA07A; /* Coral apagado */
+            filter: none;
+            z-index: 5;
+        }
+
+        @keyframes fall {
+            0% { top: -30%; transform: translate(-50%, -50%) scale(1.2) rotateX(60deg); }
+            70% { top: 40%; transform: translate(-50%, -50%) scale(1); }
+            80% { transform: translate(-50%, -50%) scaleX(1.5) scaleY(0.7); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translate(-50%, 150%) scale(0.8) rotateX(20deg); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="number" id="num5">5</div>
+        <div class="number" id="num4">4</div>
+        <div class="number" id="num3">3</div>
+        <div class="number" id="num2">2</div>
+        <div class="number" id="num1">1</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const numbers = [5,4,3,2,1].map(n => document.getElementById(`num${n}`));
+            
+            // Configuración inicial
+            numbers[0].classList.add('active');
+            
+            async function startCountdown() {
+                // Animación del 5 con squash exagerado
+                await animateNumber(numbers[0], 'fall', 1000);
+                
+                // Efecto de pulso al llegar
+                numbers[0].style.animation = 'pulse 300ms ease-out 2';
+                await delay(600);
+                numbers[0].style.animation = '';
+                
+                // Animación secuencial del 4 al 1
+                for(let i = 1; i < numbers.length; i++) {
+                    // Desactivar número anterior
+                    numbers[i-1].classList.remove('active');
+                    numbers[i-1].classList.add('inactive');
+                    
+                    // Activar nuevo número con animación
+                    await animateNumber(numbers[i], 'slideIn', 600);
+                    
+                    // Efecto de pulso
+                    numbers[i].style.animation = 'pulse 300ms ease-out 2';
+                    await delay(600);
+                    numbers[i].style.animation = '';
+                    
+                    // Pequeña pausa entre números
+                    if(i < numbers.length-1) await delay(200);
+                }
+            }
+
+            function animateNumber(element, animationType, duration) {
+                return new Promise(resolve => {
+                    element.style.animation = `${animationType} ${duration}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
+                    element.classList.add('active');
+                    
+                    setTimeout(() => {
+                        element.style.animation = '';
+                        resolve();
+                    }, duration);
+                });
+            }
+
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            startCountdown();
+        });
+    </script>
+</body>
+</html>

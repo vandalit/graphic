@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía del Comprador – Vstone</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f6f3;
+      --text: #333333;
+      --primary: #005C97;
+      --accent: #FF5A5F;
+      --accent2: #3CC57F;
+      --section-bg: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    header { background: var(--primary); color: #fff; padding: 2rem 1rem; text-align: center; }
+    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    header p { font-size: 1rem; }
+    nav { background: var(--section-bg); padding: 1rem; border-bottom: 1px solid #ddd; }
+    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+    nav a { text-decoration: none; color: var(--primary); font-weight: 600; }
+    main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    section { background: var(--section-bg); margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    section h2 { font-size: 1.4rem; color: var(--primary); margin-bottom: 0.8rem; }
+    .icon { font-size: 1.5rem; color: var(--accent); margin-right: 0.5rem; vertical-align: middle; }
+    .placeholder { width: 100%; height: auto; border-radius: 4px; margin: 1rem 0; }
+    ul.checklist { list-style: none; margin-top: 1rem; }
+    ul.checklist li { padding-left: 2rem; position: relative; margin-bottom: 0.6rem; }
+    ul.checklist li::before { content: '\f00c'; font-family: 'Font Awesome 5 Free'; font-weight: 900; position: absolute; left: 0; color: var(--accent2); }
+    footer { text-align: center; padding: 1rem; font-size: 0.9rem; color: #777; }
+    img { max-width: 40%; height: auto; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Guía del Comprador</h1>
+    <p>Vstone · Evita errores y compra con seguridad</p>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="#error1">Error 1</a></li>
+      <li><a href="#error2">Error 2</a></li>
+      <li><a href="#error3">Error 3</a></li>
+      <li><a href="#error4">Error 4</a></li>
+      <li><a href="#error5">Error 5</a></li>
+      <li><a href="#solucion">Solución</a></li>
+    </ul>
+  </nav>
+  <main>
+    <!-- Error Sections -->
+    <section id="error1">
+      <h2><i class="fas fa-percentage icon"></i>Error 1: No comparar tasas</h2>
+      <p>Compara siempre las tasas de interés entre distintas entidades financieras. Un pequeño diferencial anual puede significar miles de dólares de ahorro.</p>
+      <img src="./assets/img/errporc.png" alt="Comparar Tasas" class="placeholder">
+    </section>
+    <section id="error2">
+      <h2><i class="fas fa-wallet icon"></i>Error 2: Olvidar costos extra</h2>
+      <p>Incluye gastos de notaría, tasación, impuestos y seguros. Presupuesta un 5-10% adicional al precio de compra para no llevarte sorpresas.</p>
+      <img src="./assets/img/err-csts.png" alt="Costos Extra" class="placeholder">
+    </section>
+    <section id="error3">
+      <h2><i class="fas fa-file-invoice-dollar icon"></i>Error 3: Saltar la pre-aprobación</h2>
+      <p>Obtener una pre-aprobación hipotecaria te da claridad sobre tu capacidad de compra y fortalece tu posición de negociación.</p>
+      <img src="./assets/img/errapro.png" alt="Pre-aprobación" class="placeholder">
+    </section>
+    <section id="error4">
+      <h2><i class="fas fa-heart icon"></i>Error 4: Enamorarse a primera vista</h2>
+      <p>No tomes decisiones solo por la primera impresión; revisa la estructura, las instalaciones y el estado legal de la propiedad.</p>
+      <img src="./assets/img/errlove.png" alt="Enamorarse a primera vista" class="placeholder">
+    </section>
+    <section id="error5">
+      <h2><i class="fas fa-file-contract icon"></i>Error 5: No leer la letra chica</h2>
+      <p>Lee detalladamente los contratos, cláusulas y anexos para evitar penalidades y restricciones inesperadas.</p>
+      <img src="./assets/img/err-lupa.png" alt="Letra Chica" class="placeholder">
+    </section>
+
+    <!-- Solución Checklist -->
+    <section id="solucion">
+      <h2><i class="fas fa-check-circle icon" style="color: var(--accent2);"></i>Solución: Checklist del Comprador</h2>
+      <ul class="checklist">
+        <li>Comparar al menos 3 ofertas de tasas hipotecarias.</li>
+        <li>Presupuestar y reservar 10% extra para costos adicionales.</li>
+        <li>Solicitar pre-aprobación antes de buscar propiedades.</li>
+        <li>Visitar la propiedad con lista de verificación técnica.</li>
+        <li>Leer y validar cada cláusula del contrato.</li>
+      </ul>
+      <p>¡Listo para tu compra! Descarga el PDF completo tocando el botón en nuestro Reel.</p>
+    </section>
+  </main>
+  <footer>
+    <p>© 2025 Vstone – www.vstone.cl</p>
+  </footer>
+</body>
+</html>

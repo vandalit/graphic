@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard · Contenido 360</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#f7f6f3;--text:#37352f;--gray:#bdbdbd;--accent:#2f65ff;--coral:#ff5a5f;}
+*{box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{margin:0;background:var(--bg);color:var(--text);}
+.page{max-width:1240px;margin:56px auto;padding:0 32px;}
+h1{font-size:2rem;margin:0 0 24px;}
+/* Toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;}
+.toolbar select,.toolbar input{padding:6px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:.9rem;}
+/* KPI cards */
+.kpi-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px;}
+.kpi{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:16px;text-align:center;}
+.kpi h2{margin:0;font-size:1.8rem;}
+.kpi span{font-size:.8rem;color:var(--gray);}
+/* Table */
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e0e0e0;}
+th,td{padding:10px 12px;font-size:.88rem;}
+th{background:#fafafa;text-align:left;color:#555;font-weight:500;}
+td.checkbox{text-align:center;}
+tr:nth-child(even){background:#fdfdfd;}
+.status{padding:2px 8px;border-radius:4px;font-size:.75rem;color:#fff;}
+.Idea{background:#999}.Pre{background:#ffae00}.Prod{background:#ff7600}
+.Post{background:#005C97}.Pendiente{background:#b800a6}.Programado{background:#2f65ff}
+.Publicado{background:#2bad66}.Archivado{background:#555}
+.progress-bar{height:6px;background:var(--accent);border-radius:3px;}
+/* Timeline */
+.timeline-wrap{margin:40px 0;}
+.item-tl{display:flex;align-items:center;margin:4px 0;}
+.item-tl span{width:160px;font-size:.85rem}
+.bar{height:6px;border-radius:3px;background:var(--coral);}
+.bar.danger{background:#ff2d55;}
+/* Modal */
+.modal{position:fixed;inset:0;display:none;background:rgba(0,0,0,.55);align-items:center;justify-content:center;}
+.modal-content{width:90%;max-width:960px;max-height:90vh;overflow:auto;background:#fff;border-radius:8px;padding:24px;position:relative;}
+.modal-close{position:absolute;top:10px;right:16px;font-size:1.5rem;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Contenido 360 · Dashboard</h1>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input id="search" type="text" placeholder="Buscar título…">
+    <select id="filterStatus"><option value="">Status</option><option>Idea</option><option>Pre-Prod</option><option>Producción</option><option>Post</option><option>Pendiente aprobación</option><option>Programado</option><option>Publicado</option></select>
+    <select id="filterFormat"><option value="">Formato</option><option>Reel</option><option>Story</option><option>Blog</option><option>Ad</option></select>
+    <select id="filterBrand"><option value="">Marca</option><option>Vstone</option><option>Syzygy</option><option>Mindsurfer</option></select>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-wrap" id="kpis"></div>
+
+  <!-- Table -->
+  <table id="table">
+    <thead><tr>
+      <th>Título</th><th>Status</th><th>Due</th><th>Formato</th><th>Owner</th><th>%</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Chart -->
+  <canvas id="chart" height="120"></canvas>
+
+  <!-- Timeline -->
+  <h3>Próximos vencimientos (30 días)</h3>
+  <div class="timeline-wrap" id="timeline"></div>
+</div>
+
+<!-- Modal para sub-página -->
+<div class="modal" id="modal"><div class="modal-content"><span class="modal-close" id="modalClose">×</span><iframe id="modalFrame" width="100%" height="100%" style="border:0"></iframe></div></div>
+
+<script>
+/* --------------- DATA MOCKUP --------------- */
+const rows=[
+ {id:1,title:'Reel 5 · 5 Errores',status:'Producción',due:'2025-05-10',format:'Reel',owner:'Van',brand:'Vstone',progress:.45,link:'item_r5.html',kpi:{leads:0,watch:0}},
+ {id:2,title:'Terreno Altos de Lenca',status:'Publicado',due:'2025-05-01',format:'Reel',owner:'Van',brand:'Vstone',progress:1,link:'item_r3.html',kpi:{leads:14,watch:68}},
+ {id:3,title:'Blog: Checklist Home Staging',status:'Post',due:'2025-05-04',format:'Blog',owner:'Kafka',brand:'Syzygy',progress:.7,link:'item_blog.html',kpi:{leads:4,watch:0}},
+ {id:4,title:'Meme Mudanza Fails',status:'Pre-Prod',due:'2025-05-18',format:'Reel',owner:'Van',brand:'Vstone',progress:.1,link:'item_fail.html',kpi:{leads:0,watch:0}}
+];
+/* ------------------------------------------ */
+
+const tbody=document.querySelector('#table tbody');
+const kpiWrap=document.getElementById('kpis');
+const chartCtx=document.getElementById('chart');
+const timeline=document.getElementById('timeline');
+
+/* Render functions */
+function renderTable(list){
+ tbody.innerHTML='';
+ list.forEach(r=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+   <td><a href="#" data-link="${r.link}">${r.title}</a></td>
+   <td><span class="status ${short(r.status)}">${r.status}</span></td>
+   <td>${r.due||''}</td>
+   <td>${r.format}</td>
+   <td>${r.owner}</td>
+   <td><div class="progress-bar" style="width:${r.progress*100}%"></div></td>`;
+  tbody.appendChild(tr);
+ });
+ /* Modal */
+ tbody.querySelectorAll('a[data-link]').forEach(a=>{
+  a.addEventListener('click',e=>{
+   e.preventDefault();
+   openModal(a.dataset.link);
+  });
+ });
+}
+function renderKPI(list){
+ const total=list.length;
+ const published=list.filter(r=>r.status==='Publicado').length;
+ const inProd=list.filter(r=>['Pre-Prod','Producción','Post'].includes(r.status)).length;
+ const leads=list.reduce((sum,r)=>sum+r.kpi.leads,0);
+ kpiWrap.innerHTML=`
+  <div class="kpi"><h2>${total}</h2><span>Total piezas</span></div>
+  <div class="kpi"><h2>${published}</h2><span>Publicadas</span></div>
+  <div class="kpi"><h2>${inProd}</h2><span>En proceso</span></div>
+  <div class="kpi"><h2>${leads}</h2><span>Leads generados</span></div>`;
+}
+function renderChart(list){
+ const phases=['Idea','Pre-Prod','Producción','Post','Pendiente aprobación','Programado','Publicado'];
+ const counts=phases.map(p=>list.filter(r=>r.status===p).length);
+ if(window.myChart){window.myChart.destroy();}
+ window.myChart=new Chart(chartCtx,{type:'bar',
+  data:{labels:phases,datasets:[{data:counts,backgroundColor:counts.map((_,i)=>i===6?'#2bad66':'#005C97')}]} ,
+  options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}
+ });
+}
+function renderTimeline(list){
+ timeline.innerHTML='';
+ const today=new Date();
+ list.filter(r=>r.due).forEach(r=>{
+  const diff=Math.ceil((new Date(r.due)-today)/86400000);
+  if(diff>-30 && diff<30){
+   const bar=document.createElement('div');
+   bar.className='item-tl';
+   const danger=diff<=14 && diff>=0;
+   bar.innerHTML=`<span>${r.due}</span><div class="bar ${danger?'danger':''}" style="width:${100-Math.max(diff,-30)/30*100}%"></div><span style="margin-left:12px">${r.title}</span>`;
+   timeline.appendChild(bar);
+  }
+ });
+}
+/* Helpers */
+function short(st){return st.replace(/ /g,'').replace('Pre-Prod','Pre').replace('Pendienteaprobación','Pendiente');}
+/* Filtering */
+function applyFilters(){
+ const txt=document.getElementById('search').value.toLowerCase();
+ const st=document.getElementById('filterStatus').value;
+ const fm=document.getElementById('filterFormat').value;
+ const br=document.getElementById('filterBrand').value;
+ const filtered=rows.filter(r=>
+   (!txt||r.title.toLowerCase().includes(txt)) &&
+   (!st||r.status===st) &&
+   (!fm||r.format===fm) &&
+   (!br||r.brand===br)
+ );
+ renderTable(filtered);renderKPI(filtered);renderChart(filtered);renderTimeline(filtered);
+}
+/* Event listeners */
+['search','filterStatus','filterFormat','filterBrand'].forEach(id=>{
+ document.getElementById(id).addEventListener('input',applyFilters);
+});
+/* Modal */
+function openModal(link){
+ document.getElementById('modalFrame').src=link;
+ document.getElementById('modal').style.display='flex';
+}
+document.getElementById('modalClose').addEventListener('click',()=>{document.getElementById('modal').style.display='none';});
+/* Init */
+applyFilters();
+</script>
+</body>
+</html>

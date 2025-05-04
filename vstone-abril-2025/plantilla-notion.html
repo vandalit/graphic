@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Template Contenido · Vstone</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6f3;
+  --text:#37352f;
+  --gray:#bdbdbd;
+  --accent:#2f65ff;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+.page{max-width:960px;margin:72px auto 120px;padding:0 24px;}
+h1,h2,h3{font-weight:600;margin:24px 0 12px;}
+h1{font-size:2rem;}h2{font-size:1.5rem;}h3{font-size:1.25rem;}
+
+.property-grid{display:grid;grid-template-columns:160px 1fr;column-gap:16px;row-gap:10px;margin-bottom:32px;}
+.property-grid label{font-size:.85rem;color:var(--gray);padding-top:6px;}
+input[type=text],input[type=date],select,textarea{
+  width:100%;padding:6px 8px;border:1px solid #dcdcdc;border-radius:6px;background:#fff;font-size:.9rem;
+}
+
+.tag{display:inline-block;background:#e4e4e4;padding:2px 8px;border-radius:4px;font-size:.8rem;margin:0 4px 4px 0;}
+
+details{background:#fff;border:1px solid #e0e0e0;border-radius:6px;margin:16px 0;padding:0 16px;}
+details summary{padding:16px 0;font-weight:600;cursor:pointer;list-style:none;}
+details[open]{box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.checkbox{display:flex;align-items:center;margin:4px 0;}
+.checkbox input{margin-right:10px;width:18px;height:18px;}
+.progress{height:6px;width:100%;background:#eeeeee;border-radius:3px;margin:8px 0 12px;}
+.progress-bar{height:100%;background:var(--accent);width:0;border-radius:3px;transition:width .2s ease;}
+
+table.db{width:100%;border-collapse:collapse;margin:16px 0 32px;}
+.db th,.db td{padding:8px 12px;border-bottom:1px solid #ededed;text-align:left;font-size:.9rem;}
+.db th{background:#fafafa;font-weight:500;}
+
+.btn{padding:6px 12px;border:1px solid var(--gray);border-radius:6px;cursor:pointer;background:#fff;font-size:.85rem;}
+.btn:hover{background:#fafafa;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Reel 5 · 5 Errores del Comprador</h1>
+
+  <!-- FICHA PROPIEDADES -->
+  <div class="property-grid">
+    <label>Formato</label><select>
+      <option>Reel</option><option>Story</option><option>Post blog</option>
+    </select>
+
+    <label>Proyecto</label><div><span class="tag">Vstone</span><span class="tag">Lead Gen</span></div>
+
+    <label>Status</label><select>
+      <option>Pre-Prod</option><option>Producción</option><option>Post</option><option>Pendiente aprobación</option>
+    </select>
+
+    <label>Due date</label><input type="date">
+
+    <label>Owner</label><input type="text" placeholder="Van">
+
+    <label>Keyword foco</label><input type="text" placeholder="comprar primera casa">
+
+    <label>CTA</label><input type="text" placeholder="Descargá la guía PDF">
+
+    <label>Link final</label><input type="text" placeholder="https://vstone.cl/guia-comprador.pdf">
+  </div>
+
+  <!-- CHECKLISTS POR FASE -->
+  <details open>
+    <summary>1. Ideación <span class="progress"><span class="progress-bar"></span></span></summary>
+      <div class="checkbox"><input type="checkbox">Definir objetivo (Awareness / Leads)</div>
+      <div class="checkbox"><input type="checkbox">Research de keywords primarias/secundarias</div>
+      <div class="checkbox"><input type="checkbox">Brainstorm hooks (≥3)</div>
+      <div class="checkbox"><input type="checkbox">Redactar “Gancho + Promesa + CTA”</div>
+      <div class="checkbox"><input type="checkbox">Validar alineación con pilar de contenido</div>
+  </details>
+
+  <details>
+    <summary>2. Pre-Producción <span class="progress"><span class="progress-bar"></span></span></summary>
+      <div class="checkbox"><input type="checkbox">Escribir guion VO + SFX</div>
+      <div class="checkbox"><input type="checkbox">Storyboard / keyframes en Sora</div>
+      <div class="checkbox"><input type="checkbox">Lista de assets a crear/buscar</div>
+      <div class="checkbox"><input type="checkbox">Booking de locución</div>
+      <div class="checkbox"><input type="checkbox">Chequeo legal de derechos</div>
+  </details>
+
+  <details>
+    <summary>3. Producción <span class="progress"><span class="progress-bar"></span></span></summary>
+      <div class="checkbox"><input type="checkbox">Generar escenas en Sora</div>
+      <div class="checkbox"><input type="checkbox">Grabar VO (tomas ___)</div>
+      <div class="checkbox"><input type="checkbox">Descargar música 98 BPM</div>
+      <div class="checkbox"><input type="checkbox">Recopilar SFX</div>
+      <div class="checkbox"><input type="checkbox">Backup /01_Assets</div>
+  </details>
+
+  <details>
+    <summary>4. Post-Producción <span class="progress"><span class="progress-bar"></span></span></summary>
+      <div class="checkbox"><input type="checkbox">Montaje rough-cut (markers BPM)</div>
+      <div class="checkbox"><input type="checkbox">Sincronizar VO + música + SFX</div>
+      <div class="checkbox"><input type="checkbox">Color & graphics</div>
+      <div class="checkbox"><input type="checkbox">Revisión ortografía / subtítulos</div>
+      <div class="checkbox"><input type="checkbox">Loudness -14 LUFS</div>
+      <div class="checkbox"><input type="checkbox">Export v01 → feedback interno</div>
+  </details>
+
+  <details>
+    <summary>5. Publicación <span class="progress"><span class="progress-bar"></span></span></summary>
+      <div class="checkbox"><input type="checkbox">Crear portada / thumbnail</div>
+      <div class="checkbox"><input type="checkbox">Subir a IG Reels</div>
+      <div class="checkbox"><input type="checkbox">Copiar caption + hashtags</div>
+      <div class="checkbox"><input type="checkbox">Agregar Linktree PDF</div>
+      <div class="checkbox"><input type="checkbox">Programar hora correcta</div>
+  </details>
+
+  <!-- TABLA DE ASSETS -->
+  <h2>Assets vinculados</h2>
+  <table class="db">
+    <thead><tr><th>Nombre</th><th>Tipo</th><th>Versión</th><th>Enlace</th></tr></thead>
+    <tbody>
+      <tr><td>Shot01</td><td>Video ProRes</td><td>v01</td><td><a href="#">Abrir</a></td></tr>
+      <tr><td>Keyframe_Hook</td><td>PNG</td><td>v02</td><td><a href="#">Abrir</a></td></tr>
+      <tr><td>Música_LoFi_98BPM</td><td>WAV</td><td>v01</td><td><a href="#">Abrir</a></td></tr>
+    </tbody>
+  </table>
+
+  <!-- NOTAS -->
+  <h2>Notas e ideas</h2>
+  <textarea rows="6" placeholder="Apunta aquí feedback del cliente, ideas de optimización, etc."></textarea>
+
+</div>
+
+<script>
+// — Actualiza barras de progreso en cada sección —
+function updateProgress(section){
+  const boxes=[...section.querySelectorAll('input[type=checkbox]')];
+  const checked=boxes.filter(b=>b.checked).length;
+  const bar=section.querySelector('.progress-bar');
+  if(bar && boxes.length){
+    bar.style.width=Math.round((checked/boxes.length)*100)+'%';
+  }
+}
+document.querySelectorAll('details').forEach(det=>{
+  // actualizar al abrir/cerrar
+  det.addEventListener('toggle',()=>updateProgress(det));
+  // actualizar al marcar checkboxes
+  det.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',()=>updateProgress(det));
+  });
+  // estado inicial
+  updateProgress(det);
+});
+</script>
+</body>
+</html>
