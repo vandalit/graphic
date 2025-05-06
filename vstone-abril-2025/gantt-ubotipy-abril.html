@@ -108,7 +108,7 @@ function openModal(task,role){
   modalTitle.textContent=task.title;
   // Color placeholder según rol
   const color=role==='DEV'? '7cffac' : 'd86cff';
-  modalImg.src=`https://via.placeholder.com/500x110/${color}/000?text=${encodeURIComponent(task.title)}`;
+  modalImg.src=`./assets/img/banner-klein.png`;
   // Listado de detalles
   modalBody.innerHTML=`<li><i class='fa-regular fa-clock'></i><strong> Horas estimadas:</strong> ${task.detail.hours} h</li>`+
     task.detail.items.map(it=>`<li><i class='fa-solid fa-circle-dot'></i>${it}</li>`).join('');
