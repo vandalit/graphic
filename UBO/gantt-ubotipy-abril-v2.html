@@ -62,72 +62,114 @@
 <script>
 const COLS = 23, CELL_W = 120;
 weeks.innerHTML = Array.from({length:COLS},(_,i)=>`<div class="week">S${i+1}</div>`).join('');
-const glossary = { 
-  'Inicializar repositorio Git & CI/CD':
-    'Crear repositorio central y configurar pipeline de integración continua (build, pruebas y despliegue automático).',
-  'Configurar servidor local (Nginx + PHP)':
-    'Montar un entorno de desarrollo que replica producción con Nginx y PHP-FPM.',
-  'Estructurar arquitectura Laravel + Angular':
-    'Definir capas MVC (Laravel) y SPA (Angular) para escalabilidad y mantenimiento.',
-  'Documentar estándares de código':
-    'Crear guía de estilo, linters y convenciones de commits para consistencia del código.',
-  'Laravel Sanctum & políticas':
-    'Implementar autenticación via tokens y middleware de autorización según roles.',
-  'Migraciones y seeders':
-    'Scripts versionados para crear tablas y poblar datos de prueba/control.',
-  'Formularios Angular reactivos':
-    'Gestión de formularios con validaciones instantáneas y mensajes accesibles.',
-  'Pruebas de integración':
-    'Tests que verifican la interacción correcta entre módulos front y back.',
-  'Diseñar endpoints REST':
-    'Definir recursos, verbos HTTP, paginación, versionado y códigos de estado.',
-  'Integrar Chart.js':
-    'Mostrar métricas con gráficos interactivos y responsivos.',
-  'Módulo Blog con CKEditor':
-    'Editor visual (WYSIWYG) para publicar contenido enriquecido.',
-  'Benchmark de rendimiento':
-    'Medir TTFB, tiempos de carga y uso de memoria bajo estrés.',
-  'Integración final UI':
-    'Aplicar diseño Hi-Fi definitivo y tokens de diseño en Angular.',
-  'Scripts de despliegue AlmaLinux':
-    'Automatizar instalación del stack (Nginx, PHP, Node) en servidores AlmaLinux 9.',
-  'POC Power BI':
-    'Conectar la API a Power BI como prueba de concepto de dashboards externos.',
-  'Hardening de seguridad':
-    'Reducir superficie de ataque: desactivar servicios innecesarios, reforzar permisos y activar firewall.',
-  '5 entrevistas contexto':
-    'Entrevistas cualitativas a usuarios para comprender necesidades reales.',
-  'Personas & Journey Map':
-    'Modelos de usuario y mapeo de su experiencia emocional con la plataforma.',
-  'Benchmark dashboards':
-    'Comparar soluciones líderes para extraer buenas prácticas.',
-  'Wireframes low-fi':
-    'Bocetos de baja fidelidad para validar flujo antes del diseño visual.',
-  'Tokens de diseño':
-    'Variables globales de color, tipografía y espaciado para coherencia.',
-  'Biblioteca de componentes':
-    'Catálogo reutilizable de UI (botones, inputs, layouts) en Figma.',
-  'Prototipo interactivo':
-    'Simulación navegable para tests tempranos de usabilidad.',
-  'Iteraciones con feedback':
-    'Mejoras continuas basadas en pruebas y revisiones.',
-  'Test con 8 usuarios':
-    'Pruebas moderadas para detectar problemas de UX críticos.',
-  'Reporte de hallazgos':
-    'Documento con issues, severidad y recomendaciones.',
-  'Ajustes de contraste y ARIA':
-    'Correcciones para cumplir WCAG 2.1 AA y accesibilidad de lectores.',
-  'Guía de accesibilidad':
-    'Checklist y patrones inclusivos para futuras interfaces.',
-  'Entrevistas post-lanzamiento':
-    'Recoger feedback real tras uso del MVP en producción.',
-  'Medición de KPIs':
-    'Analizar métricas de rendimiento, adopción y errores.',
-  'Informe de mejoras':
-    'Roadmap de optimización basado en datos y feedback.',
-  'Priorizar backlog fase 2':
-    'Ordenar nuevas tareas por impacto, esfuerzo y riesgo.'
- };
+
+/* ────────── Glosario con horas (benchmark 2025) ────────── */
+const glossary = {
+  /* DEV – Mes 1 */
+  "Inicializar repositorio Git & CI/CD":
+    "(20 h) Crear repositorio central y configurar pipeline de integración continua (build, pruebas y despliegue automático).",
+
+  "Configurar servidor local (Nginx + PHP-FPM)":
+    "(16 h) Montar entorno Docker/VM con Nginx y PHP-FPM, certificados SSL locales y autorecarga.",
+
+  "Estructurar arquitectura Laravel + Angular":
+    "(40 h) Definir carpetas, routing, guards, providers y patrones MVC/SPA escalables; incluir linters y Prettier.",
+
+  "Documentar estándares de código":
+    "(12 h) Redactar guía de estilo, instalar linters, hooks Husky y convenciones de commits semánticos.",
+
+  /* DEV – Mes 2 */
+  "Laravel Sanctum & políticas":
+    "(18 h) Implementar autenticación vía tokens y middleware de autorización según roles.",
+
+  "Migraciones y seeders":
+    "(14 h) Crear scripts versionados para esquema y poblar datos sintéticos de prueba.",
+
+  "Formularios Angular reactivos":
+    "(20 h) Desarrollar formularios con validaciones instantáneas y mensajes accesibles.",
+
+  "Pruebas de integración":
+    "(18 h) Escribir tests que verifiquen interacción correcta entre API y componentes front.",
+
+  /* DEV – Mes 3 */
+  "Diseñar endpoints REST":
+    "(24 h) Mapear recursos, verbos HTTP, paginación, versionado y códigos de estado.",
+
+  "Integrar Chart.js":
+    "(20 h) Renderizar métricas con gráficos dinámicos y responsivos en el dashboard.",
+
+  "Módulo Blog con CKEditor":
+    "(24 h) Implementar editor WYSIWYG con uploads de imágenes y rutas amigables.",
+
+  "Benchmark de rendimiento":
+    "(16 h) Medir TTFB, tiempos de carga y consumo de memoria bajo estrés.",
+
+  /* DEV – Mes 4 */
+  "Integración final UI":
+    "(20 h) Aplicar diseño Hi-Fi definitivo, tokens y componentes productivos.",
+
+  "Scripts de despliegue AlmaLinux":
+    "(20 h) Automatizar instalación (Ansible/Bash) en servidores AlmaLinux 9 con rollback.",
+
+  "POC Power BI":
+    "(16 h) Conectar la API a Power BI, crear dataset y dashboard demostrativo.",
+
+  "Hardening de seguridad":
+    "(16 h) Deshabilitar servicios innecesarios, reforzar permisos y activar firewall + headers seguros.",
+
+  /* UX – Mes 1 */
+  "5 entrevistas contexto":
+    "(25 h) Diseñar guion, reclutar, conducir sesiones, transcribir y sintetizar hallazgos.",
+
+  "Personas & Journey Map":
+    "(18 h) Construir arquetipos y mapa de experiencia con pain points y emociones.",
+
+  "Benchmark dashboards":
+    "(12 h) Analizar soluciones líderes, heurísticas y patrones visuales.",
+
+  "Wireframes low-fi":
+    "(18 h) Bocetar flujo principal en baja fidelidad para feedback rápido.",
+
+  /* UX – Mes 2 */
+  "Tokens de diseño":
+    "(16 h) Definir variables globales de color, tipografía y espaciado.",
+
+  "Biblioteca de componentes":
+    "(24 h) Crear catálogo UI reutilizable con documentación en Figma/Storybook.",
+
+  "Prototipo interactivo":
+    "(20 h) Construir maqueta navegable en Figma para pruebas tempranas.",
+
+  "Iteraciones con feedback":
+    "(16 h) Ajustar prototipo tras tests o revisiones de stakeholders.",
+
+  /* UX – Mes 3 */
+  "Test con 8 usuarios":
+    "(32 h) Planificar, moderar sesiones y recopilar métricas de usabilidad.",
+
+  "Reporte de hallazgos":
+    "(12 h) Documentar issues encontrados, severidad y recomendaciones.",
+
+  "Ajustes de contraste y ARIA":
+    "(16 h) Corregir colores, roles ARIA y focus para cumplir WCAG 2.1 AA.",
+
+  "Guía de accesibilidad":
+    "(10 h) Elaborar checklist y patrones inclusivos para futuras pantallas.",
+
+  /* UX – Mes 4 */
+  "Entrevistas post-lanzamiento":
+    "(16 h) Recoger feedback real tras uso del MVP en producción.",
+
+  "Medición de KPIs":
+    "(16 h) Configurar métricas (adopción, error-rate, latencia) y analizarlas.",
+
+  "Informe de mejoras":
+    "(10 h) Sintetizar datos y proponer roadmap de optimización.",
+
+  "Priorizar backlog fase 2":
+    "(8 h) Ordenar nuevas tareas por impacto, esfuerzo y riesgo para la siguiente iteración."
+};
+
 const tasks = {
   DEV:[
     {start:1,end:6,title:'Setup & Arquitectura',hours:88,items:[
