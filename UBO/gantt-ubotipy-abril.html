@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carta Gantt · UBO Project Tracker</title>
+
+  <!-- FontAwesome para iconos -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root{--bg:#111;--card:#1b1b1b;
+          --accent-dev:#7cffac;--accent-ux:#d86cff;
+          --text:#eee;--cols:16;--cell-w:120px;--row-h:42px}
+    *{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--text)}
+    h1{margin:1rem;font-size:1.6rem;color:var(--accent-dev)}
+    #gantt-wrapper{overflow-x:auto;padding:1rem}
+
+    /* Cabecera de semanas */
+    .weeks{display:inline-flex;margin-left:200px;
+           min-width:calc(var(--cols)*var(--cell-w));border-left:2px solid #000}
+    .week{flex:0 0 var(--cell-w);height:var(--row-h);display:flex;
+          align-items:center;justify-content:center;background:#222;font-weight:600;
+          border-right:2px solid #000;position:sticky;top:0;z-index:3}
+
+    /* Filas y barras */
+    .row{display:flex;align-items:center;margin-bottom:2px}
+    .label{width:200px;min-width:200px;height:var(--row-h);display:flex;
+           align-items:center;padding-left:.5rem;font-weight:600;background:var(--card);
+           position:sticky;left:0;z-index:2}
+    .timeline{position:relative;height:var(--row-h);
+              width:calc(var(--cols)*var(--cell-w));
+              background:repeating-linear-gradient(
+                90deg,#2a2a2a 0 calc(var(--cell-w)-2px),
+                #111 calc(var(--cell-w)-2px) var(--cell-w))}
+    .bar{position:absolute;top:2px;height:calc(var(--row-h)-4px);border-radius:6px;
+         display:flex;align-items:center;justify-content:center;
+         font-size:.7rem;font-weight:600;padding:8px;color:#000;
+         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+         cursor:pointer;opacity:.95}
+    .bar[data-role="DEV"]{background:var(--accent-dev)}
+    .bar[data-role="UX"] {background:var(--accent-ux)}
+    .bar:hover::after{content:"Haz clic para ver detalles";position:absolute;
+                      top:-28px;left:50%;transform:translateX(-50%);
+                      background:#000;padding:.2rem .5rem;border-radius:4px;
+                      font-size:.65rem;color:#fff;white-space:nowrap;z-index:10}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);
+                   display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{background:var(--card);width:90%;max-width:520px;border-radius:10px;
+           padding:1.5rem;position:relative;animation:fadeIn .25s ease}
+    .modal h2{margin-top:0;color:var(--accent-dev)}
+    .close-btn{position:absolute;top:10px;right:12px;font-size:1.3rem;
+               color:var(--text);cursor:pointer}
+    .placeholder{width:100%;height:110px;border-radius:8px;
+                 background:#444 url("./assets/img/banner-klein.png") center/cover;
+                 margin:.4rem 0 1rem}
+    .detail-list{margin:.6rem 0 0;padding:0;list-style:none}
+    .detail-list li{margin:.45rem 0;display:flex;gap:.5rem;align-items:flex-start;line-height:1.3}
+    .detail-list i{min-width:18px;font-size:.8rem;color:var(--accent-dev);margin-top:2px}
+
+    /* Tooltip pedagógico */
+    .info{margin-left:.35rem;color:var(--accent-dev);cursor:help;position:relative}
+    .info .tooltip{display:none;position:absolute;left:1rem;top:-.4rem;
+                   background:#000;padding:.6rem .7rem;border-radius:6px;
+                   font-size:.72rem;line-height:1.3;width:240px;color:#fff;z-index:20}
+    .info:hover .tooltip{display:block}
+
+    @keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1}}
+
+    /* Acordeones */
+    details{margin:1rem;background:var(--card);border:1px solid #333;border-radius:6px}
+    summary{padding:.75rem 1rem;font-weight:600;background:#222;color:var(--accent-dev);
+            cursor:pointer;border-radius:6px 6px 0 0}
+    .content{padding:.5rem 1rem 1rem}
+  </style>
+</head>
+<body>
+<h1>Carta Gantt – MVP “UBO Project Tracker”</h1>
+
+<div id="gantt-wrapper">
+  <div id="weeks" class="weeks"></div>
+  <div id="rows"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <i id="closeModal" class="fa-solid fa-xmark close-btn"></i>
+    <h2 id="modalTitle"></h2>
+    <img id="modalImg" class="placeholder" alt="placeholder"/>
+    <ul id="modalBody" class="detail-list"></ul>
+  </div>
+</div>
+
+<!-- Acordeones de resumen (sin cambios) -->
+<details open><summary>Mes 1: Setup & Research</summary><div class="content"><p><strong>DEV:</strong> Setup del repo, arquitectura modular, API inicial.</p><p><strong>UX:</strong> Entrevistas, definición de personas y CJM, wireframes baja fidelidad.</p></div></details>
+<details><summary>Mes 2: CRUD & Prototipo visual</summary><div class="content"><p><strong>DEV:</strong> CRUD completo usuarios/proyectos, auth, dashboard base.</p><p><strong>UX:</strong> UI-Kit, prototipo Hi-Fi, iteración con PO.</p></div></details>
+<details><summary>Mes 3: Dashboard final y pruebas</summary><div class="content"><p><strong>DEV:</strong> Dashboards funcionales, API, blog.</p><p><strong>UX:</strong> Tests de usabilidad, accesibilidad, entrega final.</p></div></details>
+<details><summary>Mes 4: Go-live & Validación</summary><div class="content"><p><strong>DEV:</strong> Integración visual, performance, Power BI y despliegue.</p><p><strong>UX:</strong> Entrevistas post-release, informe KPI, retroalimentación.</p></div></details>
+
+<script>
+/* ---------- Cabecera semanas ---------- */
+const COLS = 16, CELL_W = 120;
+weeks.innerHTML = Array.from({length: COLS},
+  (_, i)=>`<div class="week">S${i+1}</div>`).join('');
+
+/* ---------- Glosario pedagógico ---------- */
+const glossary = {
+  'Inicializar repositorio Git & CI/CD':
+    'Crear repositorio central y configurar pipeline de integración continua (build, pruebas y despliegue automático).',
+  'Configurar servidor local (Nginx + PHP)':
+    'Montar un entorno de desarrollo que replica producción con Nginx y PHP-FPM.',
+  'Estructurar arquitectura Laravel + Angular':
+    'Definir capas MVC (Laravel) y SPA (Angular) para escalabilidad y mantenimiento.',
+  'Documentar estándares de código':
+    'Crear guía de estilo, linters y convenciones de commits para consistencia del código.',
+  'Laravel Sanctum & políticas':
+    'Implementar autenticación via tokens y middleware de autorización según roles.',
+  'Migraciones y seeders':
+    'Scripts versionados para crear tablas y poblar datos de prueba/control.',
+  'Formularios Angular reactivos':
+    'Gestión de formularios con validaciones instantáneas y mensajes accesibles.',
+  'Pruebas de integración':
+    'Tests que verifican la interacción correcta entre módulos front y back.',
+  'Diseñar endpoints REST':
+    'Definir recursos, verbos HTTP, paginación, versionado y códigos de estado.',
+  'Integrar Chart.js':
+    'Mostrar métricas con gráficos interactivos y responsivos.',
+  'Módulo Blog con CKEditor':
+    'Editor visual (WYSIWYG) para publicar contenido enriquecido.',
+  'Benchmark de rendimiento':
+    'Medir TTFB, tiempos de carga y uso de memoria bajo estrés.',
+  'Integración final UI':
+    'Aplicar diseño Hi-Fi definitivo y tokens de diseño en Angular.',
+  'Scripts de despliegue AlmaLinux':
+    'Automatizar instalación del stack (Nginx, PHP, Node) en servidores AlmaLinux 9.',
+  'POC Power BI':
+    'Conectar la API a Power BI como prueba de concepto de dashboards externos.',
+  'Hardening de seguridad':
+    'Reducir superficie de ataque: desactivar servicios innecesarios, reforzar permisos y activar firewall.',
+  '5 entrevistas contexto':
+    'Entrevistas cualitativas a usuarios para comprender necesidades reales.',
+  'Personas & Journey Map':
+    'Modelos de usuario y mapeo de su experiencia emocional con la plataforma.',
+  'Benchmark dashboards':
+    'Comparar soluciones líderes para extraer buenas prácticas.',
+  'Wireframes low-fi':
+    'Bocetos de baja fidelidad para validar flujo antes del diseño visual.',
+  'Tokens de diseño':
+    'Variables globales de color, tipografía y espaciado para coherencia.',
+  'Biblioteca de componentes':
+    'Catálogo reutilizable de UI (botones, inputs, layouts) en Figma.',
+  'Prototipo interactivo':
+    'Simulación navegable para tests tempranos de usabilidad.',
+  'Iteraciones con feedback':
+    'Mejoras continuas basadas en pruebas y revisiones.',
+  'Test con 8 usuarios':
+    'Pruebas moderadas para detectar problemas de UX críticos.',
+  'Reporte de hallazgos':
+    'Documento con issues, severidad y recomendaciones.',
+  'Ajustes de contraste y ARIA':
+    'Correcciones para cumplir WCAG 2.1 AA y accesibilidad de lectores.',
+  'Guía de accesibilidad':
+    'Checklist y patrones inclusivos para futuras interfaces.',
+  'Entrevistas post-lanzamiento':
+    'Recoger feedback real tras uso del MVP en producción.',
+  'Medición de KPIs':
+    'Analizar métricas de rendimiento, adopción y errores.',
+  'Informe de mejoras':
+    'Roadmap de optimización basado en datos y feedback.',
+  'Priorizar backlog fase 2':
+    'Ordenar nuevas tareas por impacto, esfuerzo y riesgo.'
+};
+
+/* ---------- Datos de tareas ---------- */
+const tasks = {
+  DEV: [
+    {start:1,end:4,title:'Setup & Arquitectura',hours:55,items:[
+      'Inicializar repositorio Git & CI/CD',
+      'Configurar servidor local (Nginx + PHP)',
+      'Estructurar arquitectura Laravel + Angular',
+      'Documentar estándares de código']},
+    {start:5,end:8,title:'Auth & CRUD Usuarios/Proyectos',hours:60,items:[
+      'Laravel Sanctum & políticas',
+      'Migraciones y seeders',
+      'Formularios Angular reactivos',
+      'Pruebas de integración']},
+    {start:9,end:12,title:'Dashboards + API + Blog',hours:70,items:[
+      'Diseñar endpoints REST',
+      'Integrar Chart.js',
+      'Módulo Blog con CKEditor',
+      'Benchmark de rendimiento']},
+    {start:13,end:16,title:'Fixes + Deploy + Power BI',hours:55,items:[
+      'Integración final UI',
+      'Scripts de despliegue AlmaLinux',
+      'POC Power BI',
+      'Hardening de seguridad']}
+  ],
+  UX: [
+    {start:1,end:4,title:'Research Interviews & CJM',hours:50,items:[
+      '5 entrevistas contexto',
+      'Personas & Journey Map',
+      'Benchmark dashboards',
+      'Wireframes low-fi']},
+    {start:5,end:8,title:'UI-Kit & Hi-Fi Prototipo',hours:55,items:[
+      'Tokens de diseño',
+      'Biblioteca de componentes',
+      'Prototipo interactivo',
+      'Iteraciones con feedback']},
+    {start:9,end:12,title:'Usability Test & Accesibilidad',hours:60,items:[
+      'Test con 8 usuarios',
+      'Reporte de hallazgos',
+      'Ajustes de contraste y ARIA',
+      'Guía de accesibilidad']},
+    {start:13,end:16,title:'Post-release Interviews & KPI',hours:45,items:[
+      'Entrevistas post-lanzamiento',
+      'Medición de KPIs',
+      'Informe de mejoras',
+      'Priorizar backlog fase 2']}
+  ]
+};
+
+/* ---------- Render de filas y barras ---------- */
+const rows = document.getElementById('rows');
+['DEV','UX'].forEach(role=>{
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<div class="label">${role==='DEV'?'DEV':'UX / QA'}</div>
+                   <div class="timeline"></div>`;
+  const timeline = row.querySelector('.timeline');
+
+  tasks[role].forEach(t=>{
+    const bar = document.createElement('div');
+    bar.className='bar'; bar.dataset.role=role;
+    bar.textContent = t.title;
+    bar.style.left  = (t.start-1)*CELL_W + 'px';
+    bar.style.width = (t.end - t.start + 1)*CELL_W - 4 + 'px';
+    bar.addEventListener('click',()=>openModal(t,role));
+    timeline.appendChild(bar);
+  });
+  rows.appendChild(row);
+});
+
+/* ---------- Modal ---------- */
+const modal      = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalImg   = document.getElementById('modalImg');
+const modalBody  = document.getElementById('modalBody');
+document.getElementById('closeModal').onclick = ()=>modal.style.display='none';
+modal.onclick = e=>{ if(e.target===modal) modal.style.display='none'; };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') modal.style.display='none'; });
+
+function infoIcon(txt){
+  return `<span class="info">
+           <i class="fa-solid fa-circle-info"></i>
+           <span class="tooltip">${glossary[txt] || 'Descripción no disponible.'}</span>
+          </span>`;
+}
+function openModal(task,role){
+  modalTitle.textContent = task.title;
+  modalImg.src = "./assets/img/banner-klein.png";
+  modalBody.innerHTML =
+    `<li><i class="fa-regular fa-clock"></i>
+       <strong>Horas estimadas:</strong> ${task.hours} h
+     </li>` +
+    task.items.map(txt=>
+      `<li><i class="fa-solid fa-circle-dot"></i>${txt} ${infoIcon(txt)}</li>`
+    ).join('');
+  modal.style.display='flex';
+}
+</script>
+</body>
+</html>
