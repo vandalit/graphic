@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Timeline con Toggles y Drag&Drop</title>
+
+  <!-- Import map para Three.js -->
+  <script type="importmap">
+    {"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+  </script>
+
+  <!-- FontAwesome para iconos -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-pO8Xm4X6i+7qP7Ez+X0GV6b+3xIvU6CZVtFtyX1wTzXW8+fPoP1kZ6dVzT+BxhFtjG0u6W/vpK8y4V1V7Bl8Vg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* Reset y fondo */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+    canvas { display: block; }
+
+    /* Barra superior de toggles (chips) */
+    #ui-bar {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; align-items: center;
+      padding: 4px; background: #111; z-index: 100;
+      overflow: hidden;
+    }
+    .chips-container {
+      display: flex; flex-wrap: wrap;
+      gap: 4px; overflow-x: auto;
+      flex: 1;
+    }
+    .chip {
+      display: inline-flex; align-items: center;
+      padding: 4px 8px; background: #222;
+      color: #eee; border-radius: 16px;
+      font-size: 12px; cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .chip.on { background: #444; }
+
+    /* Botón de menú off-canvas */
+    #menu-btn {
+      background: none; border: none;
+      color: #eee; font-size: 20px;
+      cursor: pointer; padding: 4px;
+    }
+
+    /* Off-canvas panel */
+    #offcanvas {
+      position: fixed; top: 0; right: 0;
+      width: 260px; height: 100%; background: #111;
+      color: #eee; transform: translateX(100%);
+      transition: transform .3s ease; z-index: 200;
+      padding: 16px; box-sizing: border-box;
+      overflow-y: auto;
+    }
+    #offcanvas.open { transform: translateX(0); }
+    #offcanvas h2 { margin-bottom: 8px; font-size: 16px; }
+    .off-item {
+      display: flex; align-items: center;
+      padding: 6px; margin-bottom: 4px;
+      background: #222; border-radius: 4px;
+      cursor: grab;
+    }
+    .off-item .handle {
+      margin-right: 8px; font-size: 14px; color: #888;
+    }
+    .off-item span { flex: 1; }
+
+    /* Responsive: mostrar máximo 10 chips en móvil */
+    @media (max-width: 600px) {
+      .chips-container .chip:nth-child(n+11) { display: none; }
+    }
+    /* Desktop: hasta 100 chips visibles */
+    @media (min-width: 601px) {
+      .chips-container .chip:nth-child(n+101) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de toggles y menú -->
+  <div id="ui-bar">
+    <div class="chips-container" id="chips"></div>
+    <button id="menu-btn"><i class="fas fa-ellipsis-h"></i></button>
+  </div>
+  <div id="offcanvas">
+    <h2>Organizar Toggles</h2>
+    <div id="offcanvas-list"></div>
+  </div>
+
+  <!-- Three.js + lógica de timeline -->
+  <script type="module">
+    import * as THREE from 'three';
+
+    const DIST = 10, FOV = 60;
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(devicePixelRatio);
+    renderer.setClearColor(0x000000, 1);
+    document.body.appendChild(renderer.domElement);
+
+    // Scene & Camera
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.set(0,0,DIST);
+    camera.lookAt(0,0,0);
+
+    // Pivotgroup para rotación & scroll
+    const pivotGroup = new THREE.Group();
+    scene.add(pivotGroup);
+
+    // RefGroup (cubos)
+    const refGroup = new THREE.Group();
+    pivotGroup.add(refGroup);
+
+    // TimelineGroup (rail + dots)
+    const timelineGroup = new THREE.Group();
+    pivotGroup.add(timelineGroup);
+
+    // Cubos de referencia
+    const cubeColors = [0xff5555,0x55ff55,0x5555ff,0xffff55];
+    const cubes = cubeColors.map(col => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color:col}));
+      refGroup.add(m);
+      return m;
+    });
+
+    // Rail
+    const rail = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04,0.04,50,12,1,true),
+      new THREE.MeshBasicMaterial({ color: 0x6060ff })
+    );
+    rail.rotation.x = Math.PI/2;
+    timelineGroup.add(rail);
+
+    // Dots
+    const positionsZ = [-20,-10,0,10,20];
+    const dots = positionsZ.map(z => {
+      const dot = new THREE.Mesh(
+        new THREE.SphereGeometry(0.3,16,16),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      timelineGroup.add(dot);
+      return dot;
+    });
+
+    // Layout en regla de tercios
+    function updateLayout(){
+      const aspect = window.innerWidth/window.innerHeight;
+      const hHalf   = Math.tan(THREE.MathUtils.degToRad(FOV/2))*DIST;
+      const wHalf   = hHalf * aspect;
+      const x3 = wHalf/3, y3 = hHalf/3;
+
+      const cubeWorld = [
+        [-x3, y3, 0], [x3, y3, 0],
+        [-x3, -y3,0], [x3,-y3,0]
+      ];
+      // Pivote amarillo (índice 3)
+      const yellow = new THREE.Vector3(...cubeWorld[3]);
+      pivotGroup.position.copy(yellow);
+
+      // Cubos
+      cubes.forEach((c,i)=>{
+        c.position.copy(new THREE.Vector3(...cubeWorld[i]).sub(yellow));
+      });
+
+      // Rail
+      rail.position.set(0,0,-yellow.z);
+
+      // Dots
+      dots.forEach((d,i)=>{
+        d.position.set(0,0, positionsZ[i] - yellow.z);
+      });
+    }
+    updateLayout();
+
+    // Rotación manual
+    let isDrag=false, pX=0, pY=0;
+    window.addEventListener('mousedown',e=>{isDrag=true; pX=e.clientX; pY=e.clientY;});
+    window.addEventListener('mouseup',() => isDrag=false);
+    window.addEventListener('mousemove',e=>{
+      if(!isDrag) return;
+      const dx=(e.clientX-pX)*0.005, dy=(e.clientY-pY)*0.005;
+      pX=e.clientX; pY=e.clientY;
+      pivotGroup.rotation.y += dx;
+      pivotGroup.rotation.x += dy;
+    });
+
+    // Scroll → desplaza pivotGroup en su eje local Z
+    window.addEventListener('wheel',e=>{
+      const delta = e.deltaY*0.05;
+      const dir = new THREE.Vector3(0,0,1).applyQuaternion(pivotGroup.quaternion);
+      pivotGroup.position.add(dir.multiplyScalar(delta));
+    });
+
+    // Resize
+    window.addEventListener('resize',()=>{
+      camera.aspect=window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth,window.innerHeight);
+      updateLayout();
+    });
+
+    // Render loop
+    (function animate(){ requestAnimationFrame(animate); renderer.render(scene,camera); })();
+
+    // === UI Toggles ===
+    const chipsContainer   = document.getElementById('chips');
+    const offList          = document.getElementById('offcanvas-list');
+    const menuBtn          = document.getElementById('menu-btn');
+    const offcanvas        = document.getElementById('offcanvas');
+    const toggleElements   = [];
+
+    // Generar 100 toggles
+    for(let i=0;i<100;i++){
+      // Chip en barra
+      const chip = document.createElement('div');
+      chip.className = 'chip on';
+      chip.textContent = `Ref ${i}`;
+      chip.dataset.idx = i;
+      chip.addEventListener('click',()=>{
+        const on = chip.classList.toggle('on');
+        refGroup.children[i].visible = on;
+      });
+      chipsContainer.appendChild(chip);
+      toggleElements.push(chip);
+
+      // Item en off-canvas
+      const item = document.createElement('div');
+      item.className = 'off-item';
+      item.draggable = true;
+      item.dataset.idx = i;
+      item.innerHTML = `<i class="fas fa-grip-lines handle"></i><span>Ref ${i}</span>`;
+      offList.appendChild(item);
+    }
+
+    // Drag & Drop reorder en off-canvas
+    let dragSrc = null;
+    offList.addEventListener('dragstart',e=>{
+      dragSrc = e.target.closest('.off-item');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    offList.addEventListener('dragover',e=>{
+      e.preventDefault();
+      const over = e.target.closest('.off-item');
+      if(over && over !== dragSrc){
+        offList.insertBefore(dragSrc, over.nextSibling);
+      }
+    });
+    offList.addEventListener('drop',e=>e.preventDefault());
+
+    // Toggle off-canvas
+    menuBtn.addEventListener('click',()=> offcanvas.classList.toggle('open'));
+  </script>
+</body>
+</html>

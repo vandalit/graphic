@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Timeline – Scroll & Referencias</title>
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;background:#000;overflow:hidden}
+    canvas{display:block}
+  </style>
+</head>
+<body>
+<script type="module">
+  import * as THREE from 'three';
+
+  // === Configuración ===
+  const DIST = 10;
+  const FOV  = 60;
+  // Toggle de referencias (cambiar a false para ocultar cubos)
+  const showRefs = true;
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setClearColor(0x000000,1);
+  document.body.appendChild(renderer.domElement);
+
+  // Scene & Camera
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0,0,DIST);
+  camera.lookAt(0,0,0);
+
+  // Pivot para rotación y scroll
+  const pivotGroup = new THREE.Group();
+  scene.add(pivotGroup);
+
+  // Grupos internos
+  const refGroup      = new THREE.Group(); // cubos de referencia
+  const timelineGroup = new THREE.Group(); // rail, dots, futuro contenido
+  pivotGroup.add(refGroup, timelineGroup);
+  refGroup.visible = showRefs;
+
+  // Crear cubos de referencia
+  const colors = [0xff5555,0x55ff55,0x5555ff,0xffff55];
+  const cubes = colors.map(c=>new THREE.Mesh(
+    new THREE.BoxGeometry(1,1,1),
+    new THREE.MeshBasicMaterial({color:c})
+  ));
+  cubes.forEach(cube=>refGroup.add(cube));
+
+  // Crear rail
+  const rail = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.04,0.04,50,12,1,true),
+    new THREE.MeshBasicMaterial({color:0x6060ff})
+  );
+  rail.rotation.x = Math.PI/2;
+  timelineGroup.add(rail);
+
+  // Crear puntos (dots) a lo largo del eje Z
+  const dotPositions = [-20,-10,0,10,20];
+  const dots = dotPositions.map(z => {
+    const dot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.3,16,16),
+      new THREE.MeshBasicMaterial({color:0xffffff})
+    );
+    timelineGroup.add(dot);
+    return dot;
+  });
+
+  // Posicionar todos según regla de tercios
+  function updateLayout(){
+    const aspect = window.innerWidth/window.innerHeight;
+    const hHalf = Math.tan(THREE.MathUtils.degToRad(FOV/2))*DIST;
+    const wHalf = hHalf*aspect;
+    const xThird = wHalf/3;
+    const yThird = hHalf/3;
+    // world positions para cubos y dots
+    const cubeWorld = [
+      [-xThird,  yThird, 0],
+      [ xThird,  yThird, 0],
+      [-xThird, -yThird,0],
+      [ xThird, -yThird,0]
+    ];
+    // yellow pivot
+    const yellowPos = new THREE.Vector3(...cubeWorld[3]);
+    pivotGroup.position.copy(yellowPos);
+
+    // Referencias (cubes)
+    cubes.forEach((cube,i)=>{
+      const local = new THREE.Vector3(...cubeWorld[i]).sub(yellowPos);
+      cube.position.copy(local);
+    });
+
+    // Rail centrado en pivot (alinear extremo medio)
+    rail.position.set(0,0,-yellowPos.z);
+
+    // Dots a lo largo del rail: local Z = zWorld - pivotZ
+    dots.forEach((dot, idx)=>{
+      const zW = dotPositions[idx];
+      dot.position.set(0,0,zW - yellowPos.z);
+    });
+  }
+  updateLayout();
+
+  // === Scroll para avanzar en Z local de pivot ===
+  window.addEventListener('wheel', e=>{
+    const delta = e.deltaY * 0.05;
+    // dirección local Z del pivot
+    const dir = new THREE.Vector3(0,0,1).applyQuaternion(pivotGroup.quaternion);
+    pivotGroup.position.add(dir.multiplyScalar(delta));
+  });
+
+  // === Drag para rotación manual ===
+  let isDrag=false, pX=0, pY=0;
+  window.addEventListener('mousedown',e=>{isDrag=true; pX=e.clientX; pY=e.clientY;});
+  window.addEventListener('mouseup', ()=>isDrag=false);
+  window.addEventListener('mousemove', e=>{
+    if(!isDrag) return;
+    const dx = (e.clientX-pX)*0.005;
+    const dy = (e.clientY-pY)*0.005;
+    pX=e.clientX; pY=e.clientY;
+    pivotGroup.rotation.y += dx;
+    pivotGroup.rotation.x += dy;
+  });
+
+  // Resize
+  window.addEventListener('resize',()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    updateLayout();
+  });
+
+  // Animate
+  (function animate(){ requestAnimationFrame(animate); renderer.render(scene,camera); })();
+</script>
+</body>
+</html>

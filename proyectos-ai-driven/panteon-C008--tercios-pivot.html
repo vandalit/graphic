@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Timeline – Offcanvas Drag & Drop Fix</title>
+  <script type="importmap">
+    {"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+  </script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-pO8Xm4X6i+7qP7Ez+X0GV6b+3xIvU6CZVtFtyX1wTzXW8+fPoP1kZ6dVzT+BxhFtjG0u6W/vpK8y4V1V7Bl8Vg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    html, body { margin:0; padding:0; height:100%; overflow:hidden; }
+    canvas { display:block; }
+    /* Config bar */
+    #config-bar { position:fixed; top:0; left:0; right:0; height:40px; background:#111; display:flex; align-items:center; justify-content:flex-end; padding:0 12px; z-index:20; }
+    #config-bar button { background:transparent; border:none; color:#fff; font-size:1.4em; cursor:pointer; }
+    /* Off-canvas */
+    #offcanvas { position:fixed; top:40px; right:-260px; width:260px; bottom:0; background:#222; box-shadow:-2px 0 8px rgba(0,0,0,0.5); transition:right .3s; padding:12px; color:#fff; z-index:19; }
+    #offcanvas.open { right:0; }
+    #offcanvas h2 { margin:0 0 12px; font-size:1.1em; }
+    #offcanvas-chips { display:flex; flex-direction:column; gap:8px; }
+    /* UI bar */
+    #ui-bar { position:fixed; top:40px; left:0; right:0; height:56px; background:#000; display:flex; align-items:center; padding:0 12px; z-index:10; flex-wrap:wrap; }
+    #chips { display:flex; flex-wrap:wrap; gap:4px; }
+    /* Pill style */
+    .pill { --pill-color:#0ca; width:32px; height:16px; background:#222; border-radius:16px; position:relative; cursor:pointer; flex:0 0 auto; display:flex; align-items:center; justify-content:center; }
+    .pill .thumb { position:absolute; top:1px; left:1px; width:14px; height:14px; background:#fff; border-radius:50%; transition:transform .2s ease; }
+    .pill.on { background:var(--pill-color); }
+    .pill.on .thumb { transform:translateX(16px); }
+    /* Visibility */
+    .pill { display:none; }
+    @media (max-width:600px)  { .pill:nth-child(-n+20)  { display:flex } }
+    @media (min-width:601px) and (max-width:1024px) { .pill:nth-child(-n+50)  { display:flex } }
+    @media (min-width:1025px) { .pill:nth-child(-n+100) { display:flex } }
+    /* Handle inside offcanvas */
+    .pill.handleable { padding-left:28px; }
+    .pill.handleable .handle { position:absolute; left:6px; top:50%; transform:translateY(-50%); font-size:18px; color:#bbb; cursor:grab; transition:color .2s; }
+    .pill.handleable .handle:hover { color:#fff; }
+    .pill.dragging { opacity:0.5; }
+  </style>
+</head>
+<body>
+  <div id="config-bar">
+    <button id="menu-btn"><i class="fas fa-cog"></i></button>
+  </div>
+  <div id="offcanvas">
+    <h2>Reordenar Toggles</h2>
+    <div id="offcanvas-chips"></div>
+  </div>
+  <div id="ui-bar">
+    <div id="chips"></div>
+  </div>
+  <canvas id="three-canvas"></canvas>
+
+  <script type="module">
+    import * as THREE from 'three';
+    // --- Three.js setup ---
+    const canvas = document.getElementById('three-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.set(0,0,15);
+    camera.lookAt(0,0,0);
+    const pivotGroup = new THREE.Group();
+    scene.add(pivotGroup);
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,50,8), new THREE.MeshBasicMaterial({ color: 0x6060ff }));
+    rail.rotation.x = Math.PI/2;
+    pivotGroup.add(rail);
+    const colors = [0xff5555,0x55ff55,0x5555ff,0xffff55];
+    const positions = [[-5,3,0],[5,3,0],[-5,-3,0],[5,-3,0]];
+    const cubes = colors.map((c,i)=>{
+      const m = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ color: c }));
+      m.position.set(...positions[i]);
+      pivotGroup.add(m);
+      return m;
+    });
+    // Exclude UI from interaction
+    let dragging = false, px = 0, py = 0;
+    window.addEventListener('mousedown', e => {
+      if (e.target.closest('#offcanvas') || e.target.closest('#config-bar') || e.target.closest('#ui-bar')) return;
+      dragging = true; px = e.clientX; py = e.clientY;
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const dx = (e.clientX - px)*0.005;
+      const dy = (e.clientY - py)*0.005;
+      px = e.clientX; py = e.clientY;
+      pivotGroup.rotation.y += dx;
+      pivotGroup.rotation.x += dy;
+    });
+    window.addEventListener('mouseup', ()=>dragging = false);
+    window.addEventListener('wheel', e => {
+      if (e.target.closest('#offcanvas') || e.target.closest('#config-bar') || e.target.closest('#ui-bar')) return;
+      pivotGroup.translateZ(e.deltaY * 0.01);
+    });
+    window.addEventListener('resize', ()=>{
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    (function animate(){ requestAnimationFrame(animate); renderer.render(scene, camera); })();
+
+    // --- UI Toggles & Drag & Drop ---
+    const chips = document.getElementById('chips');
+    const offchips = document.getElementById('offcanvas-chips');
+    const total = 100;
+    for (let i = 0; i < total; i++) {
+      const color = '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+      [chips, offchips].forEach(container => {
+        const pill = document.createElement('div');
+        pill.className = 'pill on';
+        pill.style.setProperty('--pill-color', color);
+        const thumb = document.createElement('div'); thumb.className = 'thumb';
+        pill.appendChild(thumb);
+        if (container === offchips) {
+          pill.classList.add('handleable');
+          const handle = document.createElement('i');
+          handle.className = 'fas fa-grip-lines handle';
+          pill.appendChild(handle);
+          pill.draggable = true;
+          pill.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', '');
+            e.dataTransfer.effectAllowed = 'move';
+            e.target.classList.add('dragging');
+          });
+          pill.addEventListener('dragend', e => {
+            e.target.classList.remove('dragging');
+          });
+        }
+        container.appendChild(pill);
+        pill.addEventListener('click', () => {
+          if (i < cubes.length) {
+            cubes[i].visible = !cubes[i].visible;
+            pill.classList.toggle('on');
+          }
+        });
+      });
+    }
+    // Allow drop
+    offchips.addEventListener('dragover', e => {
+      e.preventDefault();
+    });
+    offchips.addEventListener('drop', e => {
+      e.preventDefault();
+      const draggingEl = offchips.querySelector('.dragging');
+      const after = getDragAfter(offchips, e.clientY);
+      if (!after) offchips.appendChild(draggingEl);
+      else offchips.insertBefore(draggingEl, after);
+    });
+    function getDragAfter(container, y) {
+      const items = [...container.querySelectorAll('.pill:not(.dragging)')];
+      return items.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height/2;
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
+      }, { offset: -Infinity }).element;
+    }
+    // Offcanvas toggle
+    document.getElementById('menu-btn').addEventListener('click', () => {
+      document.getElementById('offcanvas').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
