@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UBO Project Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* === GLOBAL STYLES === */
+    :root {
+      --accent: #7CFFAC;
+      --bg-dark: #121212;
+      --bg-card: #1E1E1E;
+      --text-primary: #F5F5F5;
+      --text-secondary: #B0B0B0;
+      --border: #2E2E2E;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #F44336;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    
+    /* === UTILITY CLASSES === */
+    .hidden {
+      display: none !important;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* === SECTION: Login === */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: var(--bg-dark);
+    }
+    
+    .login-card {
+      background-color: var(--bg-card);
+      padding: 2.5rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--accent);
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #2A2A2A;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+    
+    .form-control:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+    }
+    
+    .role-selector {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .role-option {
+      flex: 1;
+    }
+    
+    .role-option input {
+      display: none;
+    }
+    
+    .role-option label {
+      display: block;
+      padding: 0.75rem;
+      background-color: #2A2A2A;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    
+    .role-option input:checked + label {
+      background-color: var(--accent);
+      color: #121212;
+      font-weight: 500;
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--accent);
+      color: #121212;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    
+    .btn:hover {
+      opacity: 0.9;
+    }
+    
+    /* === SECTION: Header === */
+    .header {
+      background-color: var(--bg-card);
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    
+    .logo {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1.25rem;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .user-role {
+      background-color: rgba(124, 255, 172, 0.1);
+      color: var(--accent);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .logout-link {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    
+    .logout-link:hover {
+      color: var(--accent);
+    }
+    
+    select, input[type="date"] {
+      background-color: #2A2A2A;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    
+    /* === SECTION: Dashboard Grid === */
+    .dashboard {
+      padding: 2rem 0;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+    
+    .panel {
+      background-color: var(--bg-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    .panel-icon {
+      color: var(--accent);
+    }
+    
+    /* Panel Sizes */
+    .panel-kpi {
+      grid-column: span 3;
+    }
+    
+    .panel-chart {
+      grid-column: span 6;
+    }
+    
+    .panel-full {
+      grid-column: span 12;
+    }
+    
+    .panel-half {
+      grid-column: span 6;
+    }
+    
+    /* === SECTION: KPI Cards === */
+    .kpi-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    
+    .kpi-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    /* === SECTION: Charts === */
+    .chart-container {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+    
+    /* === SECTION: Tables === */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th {
+      text-align: left;
+      padding: 0.75rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    
+    .table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .table tr:hover td {
+      background-color: rgba(124, 255, 172, 0.05);
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .status-high {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: var(--danger);
+    }
+    
+    .status-medium {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+    
+    .status-low {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+    
+    .status-todo {
+      background-color: rgba(66, 165, 245, 0.1);
+      color: #42A5F5;
+    }
+    
+    .status-in-progress {
+      background-color: rgba(255, 152, 0, 0.1);
+      color: #FF9800;
+    }
+    
+    .status-done {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+    
+    /* === SECTION: Task Lists === */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background-color: #2A2A2A;
+      border-radius: 4px;
+    }
+    
+    .task-title {
+      font-size: 0.875rem;
+    }
+    
+    /* === RESPONSIVE ADJUSTMENTS === */
+    @media (max-width: 1200px) {
+      .panel-kpi {
+        grid-column: span 6;
+      }
+      
+      .panel-chart {
+        grid-column: span 12;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .panel {
+        grid-column: span 1 !important;
+      }
+      
+      .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      
+      .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .header-controls {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- === SECTION: Login Screen === -->
+  <div id="login-screen" class="login-container">
+    <div class="login-card">
+      <h1 class="login-title">UBO Project Tracker</h1>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <div class="role-selector">
+            <div class="role-option">
+              <input type="radio" id="role-admin" name="role" value="admin" required>
+              <label for="role-admin">Admin</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-dev" name="role" value="dev">
+              <label for="role-dev">Dev</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-stakeholder" name="role" value="stakeholder">
+              <label for="role-stakeholder">Stakeholder</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- === SECTION: Dashboard === -->
+  <div id="dashboard" class="hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <div class="header-left">
+          <div class="logo">UBO</div>
+          <div class="header-controls">
+            <select id="project-selector" aria-label="Select project">
+              <option value="all">All Projects</option>
+              <option value="1">Portal Académico</option>
+              <option value="2">Infra Cloud</option>
+            </select>
+            <div>
+              <input type="date" id="date-start" aria-label="Start date">
+              <span> to </span>
+              <input type="date" id="date-end" aria-label="End date">
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="user-role" id="current-role"></span>
+          <span class="logout-link" id="logout-btn">Log out</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard">
+      <div class="container">
+        <div class="dashboard-grid" id="dashboard-grid">
+          <!-- Global Progress KPI -->
+          <div class="panel panel-kpi" data-role="admin,stakeholder" id="global-progress-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Global Progress</h2>
+              <span class="panel-icon">📊</span>
+            </div>
+            <div class="kpi-value" id="global-progress-value">68%</div>
+            <div class="kpi-label">Across all projects</div>
+          </div>
+
+          <!-- Milestones Completed -->
+          <div class="panel panel-kpi" data-role="admin,dev,stakeholder">
+            <div class="panel-header">
+              <h2 class="panel-title">Milestones</h2>
+              <span class="panel-icon">🏁</span>
+            </div>
+            <div class="kpi-value"><span id="milestones-done">14</span>/<span id="milestones-total">20</span></div>
+            <div class="kpi-label">Completed/Total</div>
+          </div>
+
+          <!-- Hours Worked vs Planned -->
+          <div class="panel panel-chart" data-role="admin,dev">
+            <div class="panel-header">
+              <h2 class="panel-title">Hours Worked vs Planned</h2>
+              <span class="panel-icon">⏱️</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="hours-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Productivity Trend -->
+          <div class="panel panel-chart" data-role="admin,dev">
+            <div class="panel-header">
+              <h2 class="panel-title">Productivity Trend</h2>
+              <span class="panel-icon">📈</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="productivity-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Task Distribution -->
+          <div class="panel panel-chart" data-role="admin,dev">
+            <div class="panel-header">
+              <h2 class="panel-title">Task Distribution</h2>
+              <span class="panel-icon">📋</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="tasks-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Upcoming Checkpoints -->
+          <div class="panel panel-half" data-role="admin,dev,stakeholder">
+            <div class="panel-header">
+              <h2 class="panel-title">Upcoming Checkpoints</h2>
+              <span class="panel-icon">🗓️</span>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>Owner</th>
+                </tr>
+              </thead>
+              <tbody id="checkpoints-table">
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Personal Tasks -->
+          <div class="panel panel-half" data-role="dev">
+            <div class="panel-header">
+              <h2 class="panel-title">Personal Tasks</h2>
+              <span class="panel-icon">👨‍💻</span>
+            </div>
+            <div class="task-list" id="personal-tasks-list">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+
+          <!-- Risks & Blockers -->
+          <div class="panel panel-half" data-role="admin">
+            <div class="panel-header">
+              <h2 class="panel-title">Risks & Blockers</h2>
+              <span class="panel-icon">⚠️</span>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Risk</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="risks-table">
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /* === SECTION: Sample Data === */
+    const projects = [
+      { id: 1, name: "Portal Académico", progress: 72 },
+      { id: 2, name: "Infra Cloud", progress: 45 }
+    ];
+
+    const kpis = {
+      globalProgress: 68,
+      milestones: { done: 14, total: 20 },
+      hours: { planned: 300, actual: 275 },
+      productivity: [60, 65, 58, 72, 68, 74], // month-by-month %
+      tasksDistribution: { todo: 18, inProgress: 7, done: 45 }
+    };
+
+    const checkpoints = [
+      { date: "2025-05-20", title: "MVP Login", owner: "Ana" },
+      { date: "2025-06-10", title: "API Docs", owner: "Carlos" },
+      { date: "2025-06-25", title: "User Testing", owner: "Bianca" },
+      { date: "2025-07-15", title: "Feature Complete", owner: "David" }
+    ];
+
+    const personalTasks = [
+      { id: 101, title: "Refactor Auth", status: "In Progress" },
+      { id: 102, title: "Fix Excel parser bug", status: "To-Do" },
+      { id: 103, title: "Write API documentation", status: "To-Do" },
+      { id: 104, title: "Review PR #342", status: "In Progress" }
+    ];
+
+    const risks = [
+      { id: 1, risk: "Delay in SQL driver upgrade", status: "High" },
+      { id: 2, risk: "Stakeholder feedback pending", status: "Medium" },
+      { id: 3, risk: "Third-party API rate limits", status: "Medium" }
+    ];
+
+    /* === SECTION: DOM Elements === */
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+    const loginForm = document.getElementById('login-form');
+    const logoutBtn = document.getElementById('logout-btn');
+    const currentRole = document.getElementById('current-role');
+    const projectSelector = document.getElementById('project-selector');
+    const dateStart = document.getElementById('date-start');
+    const dateEnd = document.getElementById('date-end');
+    const globalProgressPanel = document.getElementById('global-progress-panel');
+    const globalProgressValue = document.getElementById('global-progress-value');
+    const milestonesDone = document.getElementById('milestones-done');
+    const milestonesTotal = document.getElementById('milestones-total');
+    const checkpointsTable = document.getElementById('checkpoints-table');
+    const personalTasksList = document.getElementById('personal-tasks-list');
+    const risksTable = document.getElementById('risks-table');
+
+    /* === SECTION: Chart Instances === */
+    let hoursChart, productivityChart, tasksChart;
+
+    /* === SECTION: Helper Functions === */
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function getStatusClass(status) {
+      const statusMap = {
+        'High': 'status-high',
+        'Medium': 'status-medium',
+        'Low': 'status-low',
+        'To-Do': 'status-todo',
+        'In Progress': 'status-in-progress',
+        'Done': 'status-done'
+      };
+      return statusMap[status] || '';
+    }
+
+    function renderCheckpoints() {
+      checkpointsTable.innerHTML = checkpoints
+        .map(checkpoint => `
+          <tr>
+            <td>${formatDate(checkpoint.date)}</td>
+            <td>${checkpoint.title}</td>
+            <td>${checkpoint.owner}</td>
+          </tr>
+        `)
+        .join('');
+    }
+
+    function renderPersonalTasks() {
+      personalTasksList.innerHTML = personalTasks
+        .map(task => `
+          <div class="task-item">
+            <div class="task-title">${task.title}</div>
+            <span class="status-badge ${getStatusClass(task.status)}">${task.status}</span>
+          </div>
+        `)
+        .join('');
+    }
+
+    function renderRisks() {
+      risksTable.innerHTML = risks
+        .map(risk => `
+          <tr>
+            <td>${risk.risk}</td>
+            <td><span class="status-badge ${getStatusClass(risk.status)}">${risk.status}</span></td>
+          </tr>
+        `)
+        .join('');
+    }
+
+    function initCharts() {
+      // Hours Worked vs Planned (Bar Chart)
+      const hoursCtx = document.getElementById('hours-chart').getContext('2d');
+      hoursChart = new Chart(hoursCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Planned', 'Actual'],
+          datasets: [{
+            label: 'Hours',
+            data: [kpis.hours.planned, kpis.hours.actual],
+            backgroundColor: [
+              'rgba(124, 255, 172, 0.5)',
+              'rgba(124, 255, 172, 0.8)'
+            ],
+            borderColor: [
+              'rgba(124, 255, 172, 1)',
+              'rgba(124, 255, 172, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(30, 30, 30, 0.9)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: 'rgba(124, 255, 172, 0.5)',
+              borderWidth: 1
+            }
+          }
+        }
+      });
+
+      // Productivity Trend (Line Chart)
+      const productivityCtx = document.getElementById('productivity-chart').getContext('2d');
+      productivityChart = new Chart(productivityCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Productivity %',
+            data: kpis.productivity,
+            borderColor: 'rgba(124, 255, 172, 1)',
+            backgroundColor: 'rgba(124, 255, 172, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: 'rgba(124, 255, 172, 1)',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: false,
+              min: 50,
+              max: 80,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(30, 30, 30, 0.9)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: 'rgba(124, 255, 172, 0.5)',
+              borderWidth: 1
+            }
+          }
+        }
+      });
+
+      // Task Distribution (Doughnut Chart)
+      const tasksCtx = document.getElementById('tasks-chart').getContext('2d');
+      tasksChart = new Chart(tasksCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['To-Do', 'In Progress', 'Done'],
+          datasets: [{
+            data: [kpis.tasksDistribution.todo, kpis.tasksDistribution.inProgress, kpis.tasksDistribution.done],
+            backgroundColor: [
+              'rgba(66, 165, 245, 0.8)',
+              'rgba(255, 152, 0, 0.8)',
+              'rgba(76, 175, 80, 0.8)'
+            ],
+            borderColor: [
+              'rgba(66, 165, 245, 1)',
+              'rgba(255, 152, 0, 1)',
+              'rgba(76, 175, 80, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: 'rgba(255, 255, 255, 0.7)',
+                padding: 20,
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(30, 30, 30, 0.9)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: 'rgba(124, 255, 172, 0.5)',
+              borderWidth: 1
+            }
+          }
+        }
+      });
+    }
+
+    function updatePanelsForRole(role) {
+      const panels = document.querySelectorAll('.panel');
+      panels.forEach(panel => {
+        const allowedRoles = panel.getAttribute('data-role').split(',');
+        if (allowedRoles.includes(role)) {
+          panel.style.display = 'block';
+        } else {
+          panel.style.display = 'none';
+        }
+      });
+    }
+
+    function setCurrentDateRange() {
+      const today = new Date();
+      const nextMonth = new Date();
+      nextMonth.setMonth(today.getMonth() + 1);
+      
+      dateStart.valueAsDate = today;
+      dateEnd.valueAsDate = nextMonth;
+    }
+
+    /* === SECTION: Event Handlers === */
+    function handleLogin(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const role = document.querySelector('input[name="role"]:checked').value;
+      
+      // Store role in session storage
+      sessionStorage.setItem('uboRole', role);
+      
+      // Show dashboard
+      loginScreen.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      
+      // Update UI based on role
+      currentRole.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+      updatePanelsForRole(role);
+      
+      // Initialize dashboard
+      renderCheckpoints();
+      renderPersonalTasks();
+      renderRisks();
+      initCharts();
+      setCurrentDateRange();
+      
+      // Set KPI values
+      globalProgressValue.textContent = `${kpis.globalProgress}%`;
+      milestonesDone.textContent = kpis.milestones.done;
+      milestonesTotal.textContent = kpis.milestones.total;
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('uboRole');
+      dashboard.classList.add('hidden');
+      loginScreen.classList.remove('hidden');
+      loginForm.reset();
+    }
+
+    function handleProjectChange() {
+      const projectId = projectSelector.value;
+      console.log(`Project changed to: ${projectId}`);
+      
+      // Simulate data change based on project selection
+      if (projectId === '1') {
+        globalProgressValue.textContent = '72%';
+      } else if (projectId === '2') {
+        globalProgressValue.textContent = '45%';
+      } else {
+        globalProgressValue.textContent = `${kpis.globalProgress}%`;
+      }
+    }
+
+    function handleDateChange() {
+      console.log('Date range changed:', dateStart.value, 'to', dateEnd.value);
+    }
+
+    /* === SECTION: Event Listeners === */
+    loginForm.addEventListener('submit', handleLogin);
+    logoutBtn.addEventListener('click', handleLogout);
+    projectSelector.addEventListener('change', handleProjectChange);
+    dateStart.addEventListener('change', handleDateChange);
+    dateEnd.addEventListener('change', handleDateChange);
+
+    // KPI click handler
+    globalProgressPanel.addEventListener('click', () => {
+      console.log('Global Progress:', globalProgressValue.textContent);
+    });
+
+    /* === SECTION: Initialization === */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check for existing session
+      const savedRole = sessionStorage.getItem('uboRole');
+      if (savedRole) {
+        loginScreen.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        currentRole.textContent = savedRole.charAt(0).toUpperCase() + savedRole.slice(1);
+        updatePanelsForRole(savedRole);
+        
+        // Initialize dashboard
+        renderCheckpoints();
+        renderPersonalTasks();
+        renderRisks();
+        initCharts();
+        setCurrentDateRange();
+        
+        // Set KPI values
+        globalProgressValue.textContent = `${kpis.globalProgress}%`;
+        milestonesDone.textContent = kpis.milestones.done;
+        milestonesTotal.textContent = kpis.milestones.total;
+      }
+    });
+  </script>
+</body>
+</html>
