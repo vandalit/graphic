@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UBO Seguimiento de Proyectos – Prototype</title>
+
+  <!-- === Fuentes & Iconografía === -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- === Librerías de visualización === -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+  <!-- Gantt & Calendar -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css" />
+  <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <!-- === Hoja de estilo principal (incluye correcciones) === -->
+  <style>
+    /* === Variables de color y tipografía === */
+    :root {
+      --accent: #7CFFAC;
+      --accent-dark: #5CDD8B;
+      --bg-dark: #121212;
+      --bg-darker: #0A0A0A;
+      --bg-card: #1E1E1E;
+      --bg-card-light: #2A2A2A;
+      --text-primary: #F5F5F5;
+      --text-secondary: #B0B0B0;
+      --border: #2E2E2E;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #F44336;
+      --info: #2196F3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* ======= Utilidades ======= */
+    .hidden { display: none !important; }
+    .container { width: 100%; max-width: 1800px; margin: 0 auto; padding: 0 20px; }
+
+    /* ======= Login ======= */
+    .login-container { display:flex; justify-content:center; align-items:center; height:100vh; background:linear-gradient(135deg,var(--bg-dark),var(--bg-darker)); }
+    .login-card { background:var(--bg-card); padding:2.5rem; border-radius:12px; width:100%; max-width:520px; border:1px solid var(--border); box-shadow:0 8px 32px rgba(0,0,0,.3); }
+    .login-title { font-size:1.75rem; font-weight:700; margin-bottom:1.5rem; text-align:center; color:var(--accent); }
+    .form-group { margin-bottom:1.5rem; }
+    .form-group label { display:block; margin-bottom:.75rem; font-size:.875rem; color:var(--text-secondary); }
+    .form-control { width:100%; padding:.875rem; background:#2A2A2A; border:1px solid var(--border); border-radius:8px; color:var(--text-primary); transition:.2s; font-size:.9375rem; }
+    .form-control:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(124,255,172,.3); }
+    .role-selector { display:flex; gap:1rem; margin-top:1rem; }
+    .role-option { flex:1; }
+    .role-option input { display:none; }
+    .role-option label { display:block; padding:.875rem; background:#2A2A2A; border:1px solid var(--border); border-radius:8px; text-align:center; cursor:pointer; font-size:.875rem; transition:.2s; }
+    .role-option input:checked + label { background:var(--accent); color:#121212; font-weight:600; }
+    .btn { display:block; width:100%; padding:.875rem; background:var(--accent); color:#121212; border:none; border-radius:8px; font-weight:600; font-size:.9375rem; cursor:pointer; transition:.2s; }
+    .btn:hover { background:var(--accent-dark); transform:translateY(-1px); }
+    .btn-secondary { background:var(--bg-card-light); color:var(--text-primary); }
+    .btn-secondary:hover { background:#333; transform:translateY(-1px); }
+
+    /* ======= Header ======= */
+    .header { background:var(--bg-card); padding:1rem 0; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+    .header-container { display:flex; justify-content:space-between; align-items:center; }
+    .header-left { display:flex; align-items:center; gap:2.5rem; }
+    .logo { font-weight:800; color:var(--accent); font-size:1.5rem; display:flex; gap:.5rem; align-items:center; }
+    .header-controls { display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+    .header-right { display:flex; align-items:center; gap:1.5rem; }
+    .user-role { background:rgba(124,255,172,.1); color:var(--accent); padding:.375rem .75rem; border-radius:20px; font-size:.8125rem; font-weight:600; text-transform:uppercase; }
+    .logout-link { color:var(--text-secondary); font-size:.8125rem; display:flex; align-items:center; gap:.5rem; cursor:pointer; transition:.2s; }
+    .logout-link:hover, .notification-bell:hover { color:var(--accent); }
+    .notification-bell { position:relative; cursor:pointer; color:var(--text-secondary); transition:.2s; }
+    .notification-badge { position:absolute; top:-5px; right:-5px; width:18px; height:18px; border-radius:50%; background:var(--danger); color:#fff; font-size:.6875rem; display:flex; align-items:center; justify-content:center; font-weight:600; }
+
+    /* ======= Dashboard Grid ======= */
+    .dashboard { padding:2rem 0; min-height:calc(100vh - 65px); }
+    .dashboard-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:1.5rem; }
+    .panel { background:var(--bg-card); border-radius:12px; padding:1.75rem; border:1px solid var(--border); transition:.3s; box-shadow:0 4px 12px rgba(0,0,0,.1); }
+    .panel:hover { box-shadow:0 8px 24px rgba(0,0,0,.2); transform:translateY(-2px); }
+    .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; cursor:move; }
+    .panel-title { font-size:1.125rem; font-weight:700; }
+
+    /* Tamaños flexibilizados */
+    .panel-kpi { grid-column:span 3; display:flex; flex-direction:column; justify-content:space-between; min-height:180px; }
+    .panel-chart { grid-column:span 6; min-height:350px; }
+    .panel-half { grid-column:span 6; }
+    .panel-full { grid-column:span 12; }
+
+    /* Ajustes responsivos */
+    @media (max-width:1600px){ .panel-kpi{grid-column:span 4} .panel-chart{grid-column:span 6} .panel-half{grid-column:span 12} }
+    @media (max-width:1200px){ .panel-kpi{grid-column:span 6} .panel-chart{grid-column:span 12} .kanban-board{grid-template-columns:1fr} .messaging-container{grid-template-columns:1fr} }
+    @media (max-width:768px){ .dashboard-grid{grid-template-columns:1fr} .panel{grid-column:span 1 !important} .header-container{flex-direction:column; gap:1rem; align-items:flex-start} }
+
+    /* ======= Tabs ======= */
+    .tabs{display:flex; border-bottom:1px solid var(--border); margin-bottom:1.5rem; flex-wrap:wrap;}
+    .tab{padding:.75rem 1.5rem; cursor:pointer; font-size:.875rem; font-weight:600; color:var(--text-secondary); border-bottom:2px solid transparent; transition:.2s; position:relative; }
+    .tab:hover{color:var(--text-primary);} .tab.active{color:var(--accent); border-bottom-color:var(--accent);} .tab-badge{position:absolute; top:4px; right:4px; width:16px; height:16px; border-radius:50%; background:var(--accent); color:#121212; font-size:.625rem; display:flex; align-items:center; justify-content:center; font-weight:700}
+    .tab-content{display:none; padding:1rem 0;} .tab-content.active{display:block; animation:fadeIn .3s ease;}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);} }
+
+    /* ======= PowerBI Cards ajustes ======= */
+    .powerbi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); grid-auto-rows:minmax(150px,auto); gap:1.5rem;}
+    .powerbi-card{background:var(--bg-card); border-radius:8px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; min-height:180px; overflow:visible; box-shadow:0 4px 12px rgba(0,0,0,.1);} .powerbi-card-lg{grid-column:span 2; min-height:350px;}
+
+    /* ======= Gantt & Calendar placeholders (height) ======= */
+    #gantt-chart-container{width:100%; overflow-x:auto;}
+    #gantt-chart-svg{min-width:800px;}
+    #calendar-app{max-width:100%; margin:0 auto;}
+
+    /* ======= Drag-n-Drop visual ======= */
+    [draggable="true"]{cursor:move; user-select:none;}
+    .sortable-chosen{opacity:.8; transform:scale(1.02); box-shadow:0 0 20px rgba(124,255,172,.3);}
+    .sortable-ghost{opacity:.4; background:rgba(124,255,172,.1); border:2px dashed var(--accent);}  
+  </style>
+</head>
+<body>
+  <!-- ============ LOGIN SCREEN ============ -->
+  <div id="login-screen" class="login-container">
+    <div class="login-card">
+      <h1 class="login-title">Seguimiento de Proyectos UBO</h1>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" id="email" class="form-control" placeholder="tu@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required />
+        </div>
+        <div class="form-group">
+          <label>Rol</label>
+          <div class="role-selector">
+            <div class="role-option">
+              <input type="radio" id="role-admin" name="role" value="admin" required />
+              <label for="role-admin">Administrador</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-dev" name="role" value="dev" />
+              <label for="role-dev">Desarrollador</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-stakeholder" name="role" value="stakeholder" />
+              <label for="role-stakeholder">Stakeholder</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn">Iniciar Sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="dashboard" class="hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <div class="header-left">
+          <div class="logo"><i class="fas fa-project-diagram"></i><span>UBO</span></div>
+          <div class="header-controls">
+            <select id="project-selector" aria-label="Seleccionar proyecto">
+              <option value="all">Todos los Proyectos</option>
+              <option value="1">Portal Académico</option>
+              <option value="2">Infra Cloud</option>
+              <option value="3">App Móvil</option>
+              <option value="4">Migración BD</option>
+            </select>
+            <div>
+              <input type="date" id="date-start" /><span> a </span><input type="date" id="date-end" />
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="user-role" id="current-role"></span>
+          <div class="notification-bell" id="notification-bell">
+            <i class="fas fa-bell"></i><span class="notification-badge" id="notification-badge">3</span>
+          </div>
+          <span class="logout-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="dashboard">
+      <div class="container">
+        <!-- ===== Stakeholder Banner ===== -->
+        <div id="stakeholder-banner" class="hidden">
+          <div class="banner" style="width:100%;height:200px;background:var(--bg-card-light);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+            <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=60" alt="Proyectos UBO" style="width:100%;height:100%;object-fit:cover;opacity:.4;" />
+            <div class="banner-text" style="position:absolute;color:#fff;font-size:2rem;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.5);">Panel de <span style="color:var(--accent)">Stakeholders</span></div>
+          </div>
+        </div>
+
+        <!-- ===== Tabs (PM / Dev) ===== -->
+        <div id="project-manager-tabs" class="hidden">
+          <div class="tabs">
+            <div class="tab active" data-tab="overview"><span>Resumen</span></div>
+            <div class="tab" data-tab="gantt"><span>Gantt</span></div>
+            <div class="tab" data-tab="kanban"><span>Kanban</span></div>
+            <div class="tab" data-tab="calendar"><span>Calendario</span></div>
+            <div class="tab" data-tab="messages"><span>Mensajes</span><div class="tab-badge" id="message-badge">2</div></div>
+          </div>
+        </div>
+
+        <!-- ===== Tab Contents ===== -->
+        <div id="tab-contents">
+          <!-- === Overview === -->
+          <div id="overview-tab" class="tab-content active">
+            <div class="dashboard-grid" id="dashboard-grid">
+              <!-- KPI: Progreso -->
+              <div class="panel panel-kpi" data-role="admin,stakeholder" id="global-progress-panel">
+                <div class="panel-header"><h2 class="panel-title">Progreso Global</h2><span>📊</span></div>
+                <div class="kpi-value" id="global-progress-value">68%</div>
+                <div class="kpi-label">En todos los proyectos</div>
+                <div class="kpi-trend up"><i class="fas fa-arrow-up"></i><span>5% vs mes anterior</span></div>
+              </div>
+              <!-- KPI: Hitos -->
+              <div class="panel panel-kpi" data-role="admin,dev,stakeholder">
+                <div class="panel-header"><h2 class="panel-title">Hitos</h2><span>🏁</span></div>
+                <div class="kpi-value"><span id="milestones-done">14</span>/<span id="milestones-total">20</span></div>
+                <div class="kpi-label">Completados/Totales</div>
+                <div class="kpi-trend up"><i class="fas fa-arrow-up"></i><span>+2 este mes</span></div>
+              </div>
+              <!-- Chart: Horas -->
+              <div class="panel panel-chart" data-role="admin,dev">
+                <div class="panel-header"><h2 class="panel-title">Horas Trabajadas vs Planificadas</h2><span>⏱️</span></div>
+                <div class="chart-container"><canvas id="hours-chart"></canvas></div>
+              </div>
+              <!-- Chart: Productividad -->
+              <div class="panel panel-chart" data-role="admin,dev">
+                <div class="panel-header"><h2 class="panel-title">Tendencia de Productividad</h2><span>📈</span></div>
+                <div class="chart-container"><canvas id="productivity-chart"></canvas></div>
+              </div>
+              <!-- Chart: Tareas -->
+              <div class="panel panel-chart" data-role="admin,dev">
+                <div class="panel-header"><h2 class="panel-title">Distribución de Tareas</h2><span>📋</span></div>
+                <div class="chart-container"><canvas id="tasks-chart"></canvas></div>
+              </div>
+              <!-- Checkpoints -->
+              <div class="panel panel-half" data-role="admin,dev,stakeholder">
+                <div class="panel-header"><h2 class="panel-title">Próximos Puntos de Control</h2><span>🗓️</span></div>
+                <table class="table">
+                  <thead><tr><th>Fecha</th><th>Título</th><th>Responsable</th></tr></thead>
+                  <tbody id="checkpoints-table"></tbody>
+                </table>
+              </div>
+              <!-- Personal Tasks -->
+              <div class="panel panel-half" data-role="dev">
+                <div class="panel-header"><h2 class="panel-title">Tareas Personales</h2><span>👨‍💻</span></div>
+                <div class="task-list" id="personal-tasks-list"></div>
+              </div>
+              <!-- Risks -->
+              <div class="panel panel-half" data-role="admin">
+                <div class="panel-header"><h2 class="panel-title">Riesgos y Bloqueos</h2><span>⚠️</span></div>
+                <table class="table"><thead><tr><th>Riesgo</th><th>Estado</th></tr></thead><tbody id="risks-table"></tbody></table>
+              </div>
+            </div>
+          </div>
+
+          <!-- === Gantt === -->
+          <div id="gantt-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header"><h2 class="panel-title">Diagrama de Gantt</h2><span>📅</span></div>
+              <div id="gantt-chart-container"></div>
+            </div>
+          </div>
+
+          <!-- === Kanban === -->
+          <div id="kanban-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header"><h2 class="panel-title">Tablero Kanban</h2><span>📌</span></div>
+              <div class="kanban-board" id="kanban-board">
+                <!-- Column templates inserted by JS if empty -->
+              </div>
+            </div>
+          </div>
+
+          <!-- === Calendar === -->
+          <div id="calendar-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header"><h2 class="panel-title">Calendario del Proyecto</h2><span>🗓️</span></div>
+              <div id="calendar-app"></div>
+            </div>
+          </div>
+
+          <!-- === Messages === -->
+          <div id="messages-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header"><h2 class="panel-title">Mensajes</h2><span>✉️</span></div>
+              <div class="messaging-container">
+                <div class="conversation-list" id="conversation-list"></div>
+                <div class="message-container" id="message-container"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PowerBI for Stakeholder ===== -->
+        <div id="powerbi-view" class="hidden">
+          <div class="powerbi-grid" id="powerbi-grid">
+            <!-- Cards generated by JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============ NOTIFICATIONS ============ -->
+  <div class="notifications-container" id="notifications"></div>
+
+  <!-- ============ SCRIPTS ============ -->
+  <script>
+    /* =============================================================
+       UTILIDADES GENERALES
+    ============================================================= */
+    const qs = (sel, ctx=document) => ctx.querySelector(sel);
+    const qsa = (sel, ctx=document) => [...ctx.querySelectorAll(sel)];
+
+    /* =============================================================
+       VARIABLES DE ESTADO
+    ============================================================= */
+    let currentUserRole = null;
+    const checkpoints = [
+      { date: "2025-05-06", title: "Kick-off Sprint", owner: "Ana" },
+      { date: "2025-05-10", title: "Entrega MVP", owner: "Carlos" },
+      { date: "2025-05-20", title: "Demo Stakeholders", owner: "Equipo" }
+    ];
+    const risks = [
+      { risk: "Retraso proveedor API", status: "Alto" },
+      { risk: "Sobrecarga servidor", status: "Medio" }
+    ];
+
+    /* =============================================================
+       LOGIN
+    ============================================================= */
+    qs('#login-form').addEventListener('submit', handleLogin);
+
+    function handleLogin(e){
+      e.preventDefault();
+      const role = qs('input[name="role"]:checked').value;
+      currentUserRole = role;
+      sessionStorage.setItem('uboRole', role);
+
+      // toggle screens
+      qs('#login-screen').classList.add('hidden');
+      qs('#dashboard').classList.remove('hidden');
+      qs('#current-role').textContent = role;
+
+      // UI según rol
+      if(role==='stakeholder'){
+        qs('#project-manager-tabs').classList.add('hidden');
+        qs('#stakeholder-banner').classList.remove('hidden');
+        qs('#powerbi-view').classList.remove('hidden');
+        buildPowerBI();
+      }else{
+        qs('#project-manager-tabs').classList.remove('hidden');
+        qs('#stakeholder-banner').classList.add('hidden');
+        qs('#powerbi-view').classList.add('hidden');
+      }
+
+      initViews();
+      initUniversalDragAndDrop();
+      if(role==='dev') initDevView();
+    }
+
+    qs('#logout-btn').addEventListener('click',()=>{
+      sessionStorage.clear(); location.reload();
+    });
+
+    /* =============================================================
+       VISTAS Y TABS
+    ============================================================= */
+    function initViews(){
+      // llenar tablas estáticas
+      renderCheckpoints();
+      renderRisks();
+      renderConversations();
+
+      // listeners de tab
+      qsa('.tab').forEach(tab=>{
+        tab.addEventListener('click',()=>{
+          const id = tab.getAttribute('data-tab');
+          switchTab(id);
+          if(id==='kanban') initKanbanBoard();
+          if(id==='gantt') initGanttChart();
+          if(id==='calendar') initCalendar();
+        });
+      });
+      switchTab('overview');
+    }
+
+    function switchTab(id){
+      qsa('.tab').forEach(t=>t.classList.toggle('active', t.getAttribute('data-tab')===id));
+      qsa('.tab-content').forEach(c=>c.classList.toggle('active', c.id===`${id}-tab`));
+    }
+
+    /* =============================================================
+       RENDER STATIC DATA
+    ============================================================= */
+    function renderCheckpoints(){
+      qs('#checkpoints-table').innerHTML = checkpoints.map(c=>`<tr><td>${c.date}</td><td>${c.title}</td><td>${c.owner}</td></tr>`).join('');
+    }
+    function renderRisks(){
+      qs('#risks-table').innerHTML = risks.map(r=>`<tr><td>${r.risk}</td><td>${r.status}</td></tr>`).join('');
+    }
+    function renderConversations(){
+      // demo conversations
+      qs('#conversation-list').innerHTML = `<div class="conversation-item active"><div class="conversation-item-header"><div class="conversation-item-name">Equipo Portal Académico</div><div class="conversation-item-time">Hoy</div></div><div class="conversation-item-preview">Ana: módulo autenticación listo</div></div>`;
+      qs('#message-container').innerHTML = `<div class="message-content" style="flex:1;padding:1rem;overflow:auto;"><div class="message-item message-item-received"><div class="message-text">Hola equipo, avance?</div><div class="message-item-time">10:30</div></div><div class="message-item message-item-sent"><div class="message-text">Ya casi!</div><div class="message-item-time">10:31</div></div></div><div class="message-input-container"><textarea class="message-input" placeholder="Escribe..."></textarea><button class="message-send-btn">Enviar</button></div>`;
+    }
+
+    /* =============================================================
+       POWER BI (Stakeholder)
+    ============================================================= */
+    function buildPowerBI(){
+      const cards=[
+        {title:'Progreso General',value:'68%',change:'+5% vs mes anterior',trend:'up'},
+        {title:'Hitos Completados',value:'14/20',change:'+2 este mes',trend:'up'},
+        {title:'Presupuesto Utilizado',value:'75%',change:'+10% vs plan',trend:'down'}
+      ];
+      qs('#powerbi-grid').innerHTML = cards.map((c,i)=>`<div class="powerbi-card ${i===0?'powerbi-card-lg':''}"><div class="powerbi-card-header"><div class="powerbi-card-title">${c.title}</div><i class="fas fa-ellipsis-h"></i></div><div class="powerbi-card-value">${c.value}</div><div class="powerbi-card-change ${c.trend}"><i class="fas fa-arrow-${c.trend==='up'?'up':'down'}"></i><span>${c.change}</span></div><div class="powerbi-card-trend"><canvas id="trend-${i}"></canvas></div></div>`).join('');
+    }
+
+    /* =============================================================
+       KANBAN BOARD
+    ============================================================= */
+    function initKanbanBoard(){
+      const board = qs('#kanban-board');
+      if(board._sortable) return; // ya iniciado
+      if(!board.innerHTML.trim()){
+        const statuses=['Por Hacer','En Progreso','En Revisión','Completado'];
+        board.innerHTML = statuses.map((s,i)=>`<div class="kanban-column"><div class="kanban-column-header"><div class="kanban-column-title">${s}</div><div class="kanban-column-count">0</div></div><div class="kanban-items"></div></div>`).join('');
+      }
+      qsa('.kanban-items',board).forEach(col=>{
+        new Sortable(col,{group:'kanban',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen'});
+      });
+      board._sortable = true;
+    }
+
+    /* =============================================================
+       GANTT (frappe-gantt)
+    ============================================================= */
+    function initGanttChart(){
+      const container = qs('#gantt-chart-container');
+      if(container._initialized) return;
+      const tasks=[
+        {id:'Task 1',name:'Diseño UI/UX',start:'2025-05-01',end:'2025-05-15',progress:100,custom_class:'bar-complete'},
+        {id:'Task 2',name:'Desarrollo Backend',start:'2025-05-10',end:'2025-05-30',progress:75,custom_class:'bar-progress'},
+        {id:'Task 3',name:'Pruebas Integración',start:'2025-05-25',end:'2025-06-05',progress:20,custom_class:'bar-progress'}
+      ];
+      const gantt = new Gantt(container, tasks,{view_mode:'Day',language:'es'});
+      container._initialized = true;
+    }
+
+    /* =============================================================
+       CALENDAR (FullCalendar)
+    ============================================================= */
+    function initCalendar(){
+      const div = qs('#calendar-app');
+      if(div._initialized) return;
+      const calendar = new FullCalendar.Calendar(div,{
+        initialView:'dayGridMonth',
+        locale:'es',
+        height:600,
+        events:[
+          {title:'Revisión Sprint',date:'2025-05-05'},
+          {title:'Entrega MVP',date:'2025-05-10'},
+          {title:'Demo Cliente',date:'2025-05-20'}
+        ]
+      });
+      calendar.render();
+      div._initialized = true;
+    }
+
+    /* =============================================================
+       DRAG & DROP UNIVERSAL
+    ============================================================= */
+    function initUniversalDragAndDrop(){
+      new Sortable(qs('#dashboard-grid'),{animation:150,handle:'.panel-header',ghostClass:'sortable-ghost',chosenClass:'sortable-chosen'});
+      new Sortable(qs('#powerbi-grid'),{animation:150,handle:'.powerbi-card-header',ghostClass:'sortable-ghost',chosenClass:'sortable-chosen'});
+    }
+
+    /* =============================================================
+       DEV VIEW (demo localStorage editable)
+    ============================================================= */
+    function initDevView(){
+      // placeholder – could load dev-specific components
+    }
+
+    /* =============================================================
+       AUTO LOGIN IF SESSION
+    ============================================================= */
+    document.addEventListener('DOMContentLoaded',()=>{
+      const saved = sessionStorage.getItem('uboRole');
+      if(saved){
+        currentUserRole = saved;
+        qs('#login-screen').classList.add('hidden');
+        qs('#dashboard').classList.remove('hidden');
+        qs('#current-role').textContent = saved;
+        if(saved==='stakeholder'){qs('#powerbi-view').classList.remove('hidden');qs('#stakeholder-banner').classList.remove('hidden');}
+        else{qs('#project-manager-tabs').classList.remove('hidden');}
+        initViews();
+        initUniversalDragAndDrop();
+      }
+    });
+  </script>
+</body>
+</html>
