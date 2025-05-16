@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Calculadora Valor Propiedad – Quinta Región 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ================= VARIABLES ================= */
+    :root {
+      --bg: #f1faee;
+      --surface: #ffffff;
+      --primary: #1d3557;
+      --accent: #e63946;
+      --text: #2b2d42;
+      --radius: 0.75rem;
+      --shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1321;
+        --surface: #1d2129;
+        --primary: #457b9d;
+        --accent: #e63946;
+        --text: #f0f4f8;
+        --shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    /* ================= BASE ================= */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, "Inter", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrapper {
+      max-width: 480px;
+      margin: 4vh auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.5rem 2.5rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    label {
+      display: block;
+      margin: 0.8rem 0 0.25rem;
+      font-weight: 600;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.55rem 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #c7c7c7;
+      border-radius: 0.5rem;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    select:focus, input:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .row {
+      display: flex;
+      gap: 1rem;
+    }
+    .row .col {
+      flex: 1 1 50%;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+    }
+    button:hover,
+    button:focus {
+      background: var(--accent);
+    }
+
+    .resultado {
+      margin-top: 1.5rem;
+      padding: 1rem 0.8rem;
+      background: var(--bg);
+      border: 2px dashed var(--primary);
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      min-height: 3.2rem;
+    }
+
+    .nota {
+      font-size: 0.85rem;
+      margin-top: 1.25rem;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    .alert {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1.5rem;
+      padding: 60px;
+      flex-direction: column;
+    }
+    .logo img {
+        width: 200px;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrapper" aria-labelledby="titulo">
+    <h1 id="titulo">Calculadora referencial de valor de propiedad<br><small style="font-size:0.85rem;font-weight:400">V Región · 2025</small></h1>
+
+    <div class="row">
+      <div class="col">
+        <label for="tipo">Tipo de propiedad</label>
+        <select id="tipo" aria-label="Tipo de propiedad">
+          <option value="departamento">Departamento</option>
+          <option value="casa">Casa</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="comuna">Comuna</label>
+        <select id="comuna" aria-label="Comuna">
+          <option value="vina">Viña del Mar</option>
+          <option value="valpo">Valparaíso</option>
+          <option value="concon">Concón</option>
+          <option value="quilpue">Quilpué</option>
+          <option value="vialemana">Villa Alemana</option>
+          <option value="quillota">Quillota</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="mts">Metros cuadrados&nbsp;(m²)</label>
+        <input type="number" id="mts" placeholder="Ej: 80" min="10" aria-label="Metros cuadrados" />
+      </div>
+      <div class="col">
+        <label for="edad">Antigüedad&nbsp;(años)</label>
+        <input type="number" id="edad" placeholder="Ej: 12" min="0" aria-label="Años de antigüedad" />
+      </div>
+    </div>
+
+    <label for="estado">Estado general</label>
+    <select id="estado" aria-label="Estado general">
+      <option value="excelente">Excelente</option>
+      <option value="bueno" selected>Bueno</option>
+      <option value="regular">Regular</option>
+      <option value="malo">Malo</option>
+    </select>
+
+    <label for="plusvalia">Ubicación / plusvalía</label>
+    <select id="plusvalia" aria-label="Ubicación o plusvalía">
+      <option value="prime">Prime (playa / centro / metro)</option>
+      <option value="estandar" selected>Estándar</option>
+      <option value="periferico">Periférico</option>
+    </select>
+
+    <button id="btnCalc">Calcular valor</button>
+
+    <section id="resultado" class="resultado" role="status" aria-live="polite">
+      Ingresa los datos y presiona Calcular.
+    </section>
+
+    <p class="nota">
+      * Valor UF de referencia: 39&nbsp;150 CLP (15‑may‑2025).<br>
+      * Resultado <strong>referencial</strong>. Agenda tasación profesional para un valor definitivo.
+    </p>
+    <div class="logo">
+        <img src="./assets/img/Vstone-logo.svg" alt="logo vstone">
+        <p class="nota">
+        <small>Desarrollado por <a href="https://vstone.cl" target="_blank" rel="noopener">Vstone</a></small>
+        </p>
+    </div>
+    <p class="nota">
+      <small>© 2025 Vstone. Todos los derechos reservados.</small>
+  </main>
+
+  <script>
+    // ====== PARÁMETROS DE MERCADO (UF/m² 2025) ======
+    const baseUF = {
+      departamento: {
+        vina: 70,
+        valpo: 60,
+        concon: 75,
+        quilpue: 55,
+        vialemana: 50,
+        quillota: 45,
+      },
+      casa: {
+        vina: 46,
+        valpo: 40,
+        concon: 50,
+        quilpue: 35,
+        vialemana: 33,
+        quillota: 30,
+      },
+    };
+
+    // Factores de ajuste
+    const estadoFactor = { excelente: 1.05, bueno: 1.0, regular: 0.9, malo: 0.8 };
+    const plusFactor = { prime: 1.1, estandar: 1.0, periferico: 0.9 };
+
+    function depreciacion(edad) {
+      const anios = Math.min(+edad || 0, 40);
+      return 1 - anios * 0.005;
+    }
+
+    function formatearCLP(valor) {
+      return valor.toLocaleString("es-CL", {
+        style: "currency",
+        currency: "CLP",
+        maximumFractionDigits: 0,
+      });
+    }
+
+    function calcular() {
+      const tipo = document.getElementById("tipo").value;
+      const comuna = document.getElementById("comuna").value;
+      const mts = parseFloat(document.getElementById("mts").value);
+      const edad = parseInt(document.getElementById("edad").value) || 0;
+      const est = document.getElementById("estado").value;
+      const plus = document.getElementById("plusvalia").value;
+
+      const resultadoBox = document.getElementById("resultado");
+      resultadoBox.classList.remove("alert");
+
+      // Validaciones
+      if (!mts || mts <= 0) {
+        resultadoBox.textContent = "⛔ Ingresa los metros cuadrados (mínimo 10).";
+        resultadoBox.classList.add("alert");
+        return;
+      }
+
+      const ufBase = baseUF[tipo][comuna];
+      let ufTotal = ufBase * mts;
+      ufTotal *= depreciacion(edad);
+      ufTotal *= estadoFactor[est];
+      ufTotal *= plusFactor[plus];
+
+      const ufFinal = Math.round(ufTotal);
+      const clpFinal = formatearCLP(ufTotal * 39150);
+
+      resultadoBox.innerHTML = `Valor estimado aproximado:<br><strong>${ufFinal} UF</strong> (≈ ${clpFinal})`;
+    }
+
+    document.getElementById("btnCalc").addEventListener("click", calcular);
+  </script>
+</body>
+</html>

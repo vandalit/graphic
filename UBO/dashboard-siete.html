@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UBO Seguimiento de Proyectos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <style>
+    /* === ESTILOS GLOBALES === */
+    :root {
+      --accent: #7CFFAC;
+      --accent-dark: #5CDD8B;
+      --bg-dark: #121212;
+      --bg-darker: #0A0A0A;
+      --bg-card: #1E1E1E;
+      --bg-card-light: #2A2A2A;
+      --text-primary: #F5F5F5;
+      --text-secondary: #B0B0B0;
+      --border: #2E2E2E;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #F44336;
+      --info: #2196F3;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    
+    /* === UTILITY CLASSES === */
+    .hidden {
+      display: none !important;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* === SECCIÓN: Login === */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: var(--bg-dark);
+      background-image: linear-gradient(to bottom right, var(--bg-dark), var(--bg-darker));
+    }
+    
+    .login-card {
+      background-color: var(--bg-card);
+      padding: 2.5rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+    }
+    
+    .login-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.875rem;
+      background-color: #2A2A2A;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(124, 255, 172, 0.3);
+    }
+    
+    .role-selector {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .role-option {
+      flex: 1;
+    }
+    
+    .role-option input {
+      display: none;
+    }
+    
+    .role-option label {
+      display: block;
+      padding: 0.875rem;
+      background-color: #2A2A2A;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .role-option input:checked + label {
+      background-color: var(--accent);
+      color: #121212;
+      font-weight: 600;
+      border-color: var(--accent);
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.875rem;
+      background-color: var(--accent);
+      color: #121212;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      background-color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background-color: var(--bg-card-light);
+      color: var(--text-primary);
+    }
+    
+    .btn-secondary:hover {
+      background-color: #333;
+      transform: translateY(-1px);
+    }
+    
+    /* === SECCIÓN: Header === */
+    .header {
+      background-color: var(--bg-card);
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+    }
+    
+    .logo {
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo i {
+      font-size: 1.25rem;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .user-role {
+      background-color: rgba(124, 255, 172, 0.1);
+      color: var(--accent);
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .logout-link {
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logout-link:hover {
+      color: var(--accent);
+    }
+    
+    .notification-bell {
+      position: relative;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    
+    .notification-bell:hover {
+      color: var(--accent);
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    
+    select, input[type="date"], input[type="text"], textarea {
+      background-color: var(--bg-card-light);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.625rem 0.875rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    
+    select:focus, input[type="date"]:focus, input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(124, 255, 172, 0.3);
+    }
+    
+    /* === SECCIÓN: Dashboard Grid === */
+    .dashboard {
+      padding: 2rem 0;
+      min-height: calc(100vh - 65px);
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+    }
+    
+    .panel {
+      background-color: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .panel:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .panel.dragging {
+      opacity: 0.8;
+      transform: scale(1.02) translateY(-5px);
+      box-shadow: 0 0 20px rgba(124, 255, 172, 0.6);
+      z-index: 10;
+    }
+    
+    .panel.drop-target {
+      box-shadow: 0 0 0 3px var(--accent);
+      background-color: rgba(124, 255, 172, 0.05);
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.75rem;
+      cursor: move;
+    }
+    
+    .panel-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .panel-icon {
+      color: var(--accent);
+      font-size: 1.25rem;
+    }
+    
+    .panel-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .panel-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .panel-action-btn:hover {
+      color: var(--accent);
+      transform: scale(1.1);
+    }
+    
+    /* Tamaños de Paneles */
+    .panel-kpi {
+      grid-column: span 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+    }
+    
+    .panel-chart {
+      grid-column: span 6;
+      min-height: 350px;
+    }
+    
+    .panel-full {
+      grid-column: span 12;
+    }
+    
+    .panel-half {
+      grid-column: span 6;
+    }
+    
+    .panel-quarter {
+      grid-column: span 3;
+    }
+    
+    /* === SECCIÓN: KPI Cards === */
+    .kpi-value {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+    
+    .kpi-label {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      font-size: 0.8125rem;
+      margin-top: 0.5rem;
+    }
+    
+    .kpi-trend.up {
+      color: var(--success);
+    }
+    
+    .kpi-trend.down {
+      color: var(--danger);
+    }
+    
+    .kpi-trend i {
+      margin-right: 0.25rem;
+      font-size: 0.875rem;
+    }
+    
+    /* === SECCIÓN: Charts === */
+    .chart-container {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+    
+    .chart-container-lg {
+      height: 400px;
+    }
+    
+    /* === SECCIÓN: Tables === */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th {
+      text-align: left;
+      padding: 0.875rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    .table td {
+      padding: 0.875rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+    
+    .table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .table tr:hover td {
+      background-color: rgba(124, 255, 172, 0.05);
+    }
+    
+    .table-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+    
+    .table-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      padding: 0.25rem;
+    }
+    
+    .table-action-btn:hover {
+      color: var(--accent);
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    
+    .status-high {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: var(--danger);
+    }
+    
+    .status-medium {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+    
+    .status-low {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+    
+    .status-todo {
+      background-color: rgba(66, 165, 245, 0.1);
+      color: #42A5F5;
+    }
+    
+    .status-in-progress {
+      background-color: rgba(255, 152, 0, 0.1);
+      color: #FF9800;
+    }
+    
+    .status-done {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+    
+    /* === SECCIÓN: Task Lists === */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.875rem;
+      background-color: var(--bg-card-light);
+      border-radius: 8px;
+      border-left: 3px solid var(--border);
+      transition: all 0.2s;
+    }
+    
+    .task-item:hover {
+      border-left-color: var(--accent);
+      transform: translateX(2px);
+    }
+    
+    .task-item-high {
+      border-left-color: var(--danger);
+    }
+    
+    .task-item-medium {
+      border-left-color: var(--warning);
+    }
+    
+    .task-item-low {
+      border-left-color: var(--success);
+    }
+    
+    .task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1;
+    }
+    
+    .task-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .task-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .task-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .task-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .task-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    
+    .task-action-btn:hover {
+      color: var(--accent);
+    }
+    
+    /* === SECCIÓN: Branding Stakeholder === */
+    .banner {
+      width: 100%;
+      height: 200px;
+      background-color: var(--bg-card-light);
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.5;
+    }
+    
+    .banner-text {
+      position: absolute;
+      color: white;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      z-index: 1;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .banner-text span {
+      color: var(--accent);
+    }
+    
+    /* === SECCIÓN: Tabs === */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    
+    .tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .tab:hover {
+      color: var(--text-primary);
+    }
+    
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    .tab-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background-color: var(--accent);
+      color: #121212;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 1rem 0;
+    }
+    
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* === SECCIÓN: Kanban Board === */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    
+    .kanban-column {
+      background-color: var(--bg-card-light);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    
+    .kanban-column-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .kanban-column-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .kanban-column-count {
+      background-color: var(--bg-card);
+      color: var(--text-secondary);
+      border-radius: 12px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .kanban-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-height: 100px;
+    }
+    
+    .kanban-item {
+      background-color: var(--bg-card);
+      border-radius: 6px;
+      padding: 0.875rem;
+      border-left: 3px solid var(--border);
+      cursor: move;
+      transition: all 0.2s;
+    }
+    
+    .kanban-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kanban-item-priority {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+    
+    .kanban-item-priority.high {
+      background-color: var(--danger);
+    }
+    
+    .kanban-item-priority.medium {
+      background-color: var(--warning);
+    }
+    
+    .kanban-item-priority.low {
+      background-color: var(--success);
+    }
+    
+    /* === SECCIÓN: Gantt Chart === */
+    .gantt-container {
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+    
+    .gantt-chart {
+      min-width: 800px;
+    }
+    
+    .gantt-header {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .gantt-header-item {
+      min-width: 100px;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .gantt-row {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+      align-items: center;
+    }
+    
+    .gantt-row-item {
+      min-width: 100px;
+      padding: 0 0.5rem;
+    }
+    
+    .gantt-task-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .gantt-task-bar-container {
+      flex: 1;
+      height: 20px;
+      background-color: var(--bg-card-light);
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .gantt-task-bar {
+      height: 100%;
+      background-color: var(--accent);
+      border-radius: 10px;
+      position: absolute;
+    }
+    
+    .gantt-task-progress {
+      position: absolute;
+      right: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    /* === SECCIÓN: Calendar === */
+    #calendar {
+      max-width: 100%;
+      margin: 0 auto;
+      background-color: var(--bg-card);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    
+    .fc {
+      color: var(--text-primary);
+    }
+    
+    .fc-header-toolbar {
+      margin-bottom: 1rem;
+    }
+    
+    .fc-toolbar-title {
+      color: var(--text-primary);
+      font-size: 1.25rem;
+    }
+    
+    .fc-button {
+      background-color: var(--bg-card-light) !important;
+      border-color: var(--border) !important;
+      color: var(--text-primary) !important;
+    }
+    
+    .fc-button-primary:not(:disabled).fc-button-active {
+      background-color: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #121212 !important;
+    }
+    
+    .fc-button-primary:hover {
+      background-color: var(--bg-card) !important;
+    }
+    
+    .fc-daygrid-day {
+      background-color: var(--bg-card-light);
+      border-color: var(--border);
+    }
+    
+    .fc-daygrid-day.fc-day-today {
+      background-color: rgba(124, 255, 172, 0.1);
+    }
+    
+    .fc-event {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #121212;
+      cursor: pointer;
+    }
+    
+    .fc-event:hover {
+      opacity: 0.9;
+    }
+    
+    .fc-daygrid-event-dot {
+      border-color: var(--text-primary) !important;
+    }
+    
+    /* === SECCIÓN: Messaging === */
+    .messaging-container {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
+      height: 500px;
+    }
+    
+    .conversation-list {
+      background-color: var(--bg-card-light);
+      border-radius: 8px;
+      overflow-y: auto;
+    }
+    
+    .conversation-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .conversation-search {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .conversation-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .conversation-item:hover {
+      background-color: rgba(124, 255, 172, 0.05);
+    }
+    
+    .conversation-item.active {
+      background-color: rgba(124, 255, 172, 0.1);
+    }
+    
+    .conversation-item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .conversation-item-name {
+      font-weight: 600;
+    }
+    
+    .conversation-item-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .conversation-item-preview {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .conversation-unread {
+      background-color: var(--accent);
+      color: #121212;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-card-light);
+      border-radius: 8px;
+    }
+    
+    .message-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .message-recipient {
+      font-weight: 600;
+    }
+    
+    .message-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .message-content {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    
+    .message-input-container {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .message-input {
+      width: 100%;
+      min-height: 80px;
+      resize: none;
+    }
+    
+    .message-send-btn {
+      margin-top: 0.75rem;
+      padding: 0.625rem 1.25rem;
+      background-color: var(--accent);
+      color: #121212;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .message-send-btn:hover {
+      background-color: var(--accent-dark);
+    }
+    
+    .message-item {
+      margin-bottom: 1rem;
+      max-width: 70%;
+    }
+    
+    .message-item-sent {
+      align-self: flex-end;
+      background-color: var(--accent);
+      color: #121212;
+      padding: 0.75rem 1rem;
+      border-radius: 12px 12px 0 12px;
+    }
+    
+    .message-item-received {
+      align-self: flex-start;
+      background-color: var(--bg-card);
+      padding: 0.75rem 1rem;
+      border-radius: 12px 12px 12px 0;
+    }
+    
+    .message-item-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      text-align: right;
+    }
+    
+    /* === SECCIÓN: File Upload === */
+    .file-upload-container {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1.5rem;
+    }
+    
+    .file-upload-container:hover {
+      border-color: var(--accent);
+      background-color: rgba(124, 255, 172, 0.05);
+    }
+    
+    .file-upload-icon {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    
+    .file-upload-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .file-upload-btn {
+      background-color: var(--accent);
+      color: #121212;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .file-upload-btn:hover {
+      background-color: var(--accent-dark);
+    }
+    
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background-color: var(--bg-card-light);
+      border-radius: 6px;
+    }
+    
+    .file-icon {
+      margin-right: 1rem;
+      color: var(--accent);
+      font-size: 1.25rem;
+    }
+    
+    .file-info {
+      flex: 1;
+    }
+    
+    .file-name {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    .file-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .file-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .file-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .file-action-btn:hover {
+      color: var(--accent);
+    }
+    
+    /* === SECCIÓN: Editable Tables === */
+    .editable-table td {
+      position: relative;
+    }
+    
+    .editable-table input {
+      width: 100%;
+      background-color: transparent;
+      border: 1px solid transparent;
+      color: var(--text-primary);
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+    
+    .editable-table input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background-color: var(--bg-card-light);
+    }
+    
+    /* === SECCIÓN: Power BI Style Visuals === */
+    .powerbi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-auto-rows: minmax(150px, auto);
+      gap: 1.5rem;
+    }
+    
+    .powerbi-card {
+      background-color: var(--bg-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-height: 180px;
+      overflow: visible;
+    }
+    
+    .powerbi-card-lg {
+      grid-column: span 2;
+      min-height: 350px;
+    }
+    
+    .powerbi-card-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .powerbi-card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .powerbi-card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .powerbi-card-change {
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+    
+    .powerbi-card-change.up {
+      color: var(--success);
+    }
+    
+    .powerbi-card-change.down {
+      color: var(--danger);
+    }
+    
+    .powerbi-card-trend {
+      height: 40px;
+      margin-top: 1rem;
+    }
+    
+    /* === SECCIÓN: Notifications === */
+    .notifications-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 350px;
+      z-index: 1000;
+    }
+    
+    .notification {
+      background-color: var(--bg-card);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-left: 4px solid var(--accent);
+      display: flex;
+      gap: 1rem;
+      transform: translateX(120%);
+      transition: all 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification-icon {
+      color: var(--accent);
+      font-size: 1.25rem;
+    }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .notification-message {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .notification-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+    
+    .notification-close {
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    
+    /* === DRAG AND DROP UNIVERSAL === */
+    [draggable="true"] {
+      cursor: move;
+      user-select: none;
+    }
+    
+    .sortable-chosen {
+      opacity: 0.8;
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(124, 255, 172, 0.3);
+    }
+    
+    .sortable-ghost {
+      opacity: 0.4;
+      background: rgba(124, 255, 172, 0.1);
+      border: 2px dashed var(--accent);
+    }
+    
+    /* === AJUSTES RESPONSIVOS === */
+    @media (max-width: 1600px) {
+      .panel-kpi {
+        grid-column: span 4;
+      }
+      
+      .panel-chart {
+        grid-column: span 6;
+      }
+      
+      .panel-half {
+        grid-column: span 12;
+      }
+    }
+    
+    @media (max-width: 1200px) {
+      .panel-kpi {
+        grid-column: span 6;
+      }
+      
+      .panel-chart {
+        grid-column: span 12;
+      }
+      
+      .messaging-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .kanban-board {
+        grid-template-columns: 1fr;
+      }
+      
+      .powerbi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .panel {
+        grid-column: span 1 !important;
+      }
+      
+      .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      
+      .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .header-controls {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .powerbi-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      
+      .powerbi-card-lg {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- === SECCIÓN: Login Screen === -->
+  <div id="login-screen" class="login-container">
+    <div class="login-card">
+      <h1 class="login-title">Seguimiento de Proyectos UBO</h1>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" id="email" class="form-control" placeholder="tu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <div class="form-group">
+          <label>Rol</label>
+          <div class="role-selector">
+            <div class="role-option">
+              <input type="radio" id="role-admin" name="role" value="admin" required>
+              <label for="role-admin">Administrador</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-dev" name="role" value="dev">
+              <label for="role-dev">Desarrollador</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-stakeholder" name="role" value="stakeholder">
+              <label for="role-stakeholder">Stakeholder</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn">Iniciar Sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- === SECCIÓN: Dashboard === -->
+  <div id="dashboard" class="hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="container header-container">
+        <div class="header-left">
+          <div class="logo">
+            <i class="fas fa-project-diagram"></i>
+            <span>UBO</span>
+          </div>
+          <div class="header-controls">
+            <select id="project-selector" aria-label="Seleccionar proyecto">
+              <option value="all">Todos los Proyectos</option>
+              <option value="1">Portal Académico</option>
+              <option value="2">Infra Cloud</option>
+              <option value="3">App Móvil</option>
+              <option value="4">Migración BD</option>
+            </select>
+            <div>
+              <input type="date" id="date-start" aria-label="Fecha inicio">
+              <span> a </span>
+              <input type="date" id="date-end" aria-label="Fecha fin">
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="user-role" id="current-role"></span>
+          <div class="notification-bell" id="notification-bell">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notification-badge">3</span>
+          </div>
+          <span class="logout-link" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard">
+      <div class="container">
+        <!-- Banner para Stakeholder -->
+        <div id="stakeholder-banner" class="hidden">
+          <div class="banner">
+            <img src="./assets/img/jefeproyectos.jpeg" alt="Proyectos UBO">
+            <div class="banner-text">Panel de <span>Stakeholders</span></div>
+          </div>
+        </div>
+
+        <!-- Tabs para Jefe de Proyecto -->
+        <div id="project-manager-tabs" class="hidden">
+          <div class="tabs">
+            <div class="tab active" data-tab="overview">
+              <span>Resumen</span>
+            </div>
+            <div class="tab" data-tab="gantt">
+              <span>Diagrama Gantt</span>
+            </div>
+            <div class="tab" data-tab="kanban">
+              <span>Tablero Kanban</span>
+            </div>
+            <div class="tab" data-tab="calendar">
+              <span>Calendario</span>
+            </div>
+            <div class="tab" data-tab="messages">
+              <span>Mensajes</span>
+              <div class="tab-badge" id="message-badge">2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenido de las pestañas -->
+        <div id="tab-contents">
+          <!-- Resumen (Overview) -->
+          <div id="overview-tab" class="tab-content active">
+            <div class="dashboard-grid" id="dashboard-grid">
+              <!-- Progreso Global KPI -->
+              <div class="panel panel-kpi" data-role="admin,stakeholder" id="global-progress-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Progreso Global</h2>
+                  <span class="panel-icon">📊</span>
+                </div>
+                <div class="kpi-value" id="global-progress-value">68%</div>
+                <div class="kpi-label">En todos los proyectos</div>
+                <div class="kpi-trend up">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>5% vs mes anterior</span>
+                </div>
+              </div>
+
+              <!-- Hitos Completados -->
+              <div class="panel panel-kpi" data-role="admin,dev,stakeholder">
+                <div class="panel-header">
+                  <h2 class="panel-title">Hitos</h2>
+                  <span class="panel-icon">🏁</span>
+                </div>
+                <div class="kpi-value"><span id="milestones-done">14</span>/<span id="milestones-total">20</span></div>
+                <div class="kpi-label">Completados/Totales</div>
+                <div class="kpi-trend up">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>2 hitos completados</span>
+                </div>
+              </div>
+
+              <!-- Horas Trabajadas vs Planificadas -->
+              <div class="panel panel-chart" data-role="admin,dev">
+                <div class="panel-header">
+                  <h2 class="panel-title">Horas Trabajadas vs Planificadas</h2>
+                  <span class="panel-icon">⏱️</span>
+                </div>
+                <div class="chart-container">
+                  <canvas id="hours-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Tendencia de Productividad -->
+              <div class="panel panel-chart" data-role="admin,dev">
+                <div class="panel-header">
+                  <h2 class="panel-title">Tendencia de Productividad</h2>
+                  <span class="panel-icon">📈</span>
+                </div>
+                <div class="chart-container">
+                  <canvas id="productivity-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Distribución de Tareas -->
+              <div class="panel panel-chart" data-role="admin,dev">
+                <div class="panel-header">
+                  <h2 class="panel-title">Distribución de Tareas</h2>
+                  <span class="panel-icon">📋</span>
+                </div>
+                <div class="chart-container">
+                  <canvas id="tasks-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Próximos Puntos de Control -->
+              <div class="panel panel-half" data-role="admin,dev,stakeholder">
+                <div class="panel-header">
+                  <h2 class="panel-title">Próximos Puntos de Control</h2>
+                  <span class="panel-icon">🗓️</span>
+                </div>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Título</th>
+                      <th>Responsable</th>
+                    </tr>
+                  </thead>
+                  <tbody id="checkpoints-table">
+                    <!-- Llenado por JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Tareas Personales -->
+              <div class="panel panel-half" data-role="dev">
+                <div class="panel-header">
+                  <h2 class="panel-title">Tareas Personales</h2>
+                  <span class="panel-icon">👨‍💻</span>
+                </div>
+                <div class="task-list" id="personal-tasks-list">
+                  <!-- Llenado por JS -->
+                </div>
+              </div>
+
+              <!-- Riesgos y Bloqueos -->
+              <div class="panel panel-half" data-role="admin">
+                <div class="panel-header">
+                  <h2 class="panel-title">Riesgos y Bloqueos</h2>
+                  <span class="panel-icon">⚠️</span>
+                </div>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Riesgo</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="risks-table">
+                    <!-- Llenado por JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagrama Gantt -->
+          <div id="gantt-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header">
+                <h2 class="panel-title">Diagrama de Gantt</h2>
+                <span class="panel-icon">📅</span>
+              </div>
+              <div class="gantt-container">
+                <div id="frappe-gantt"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tablero Kanban -->
+          <div id="kanban-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header">
+                <h2 class="panel-title">Tablero Kanban</h2>
+                <span class="panel-icon">📌</span>
+              </div>
+              <div class="kanban-board" id="kanban-board">
+                <div class="kanban-column">
+                  <div class="kanban-column-header">
+                    <div class="kanban-column-title">Por Hacer</div>
+                    <div class="kanban-column-count">5</div>
+                  </div>
+                  <div class="kanban-items">
+                    <div class="kanban-item">
+                      <div class="kanban-item-priority high"></div>
+                      <strong>Implementar login</strong>
+                      <p class="kanban-item-assignee">Asignado: Ana</p>
+                    </div>
+                    <div class="kanban-item">
+                      <div class="kanban-item-priority medium"></div>
+                      <strong>Diseñar dashboard</strong>
+                      <p class="kanban-item-assignee">Asignado: Carlos</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="kanban-column">
+                  <div class="kanban-column-header">
+                    <div class="kanban-column-title">En Progreso</div>
+                    <div class="kanban-column-count">3</div>
+                  </div>
+                  <div class="kanban-items">
+                    <div class="kanban-item">
+                      <div class="kanban-item-priority high"></div>
+                      <strong>API de reportes</strong>
+                      <p class="kanban-item-assignee">Asignado: David</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="kanban-column">
+                  <div class="kanban-column-header">
+                    <div class="kanban-column-title">En Revisión</div>
+                    <div class="kanban-column-count">2</div>
+                  </div>
+                  <div class="kanban-items">
+                    <div class="kanban-item">
+                      <div class="kanban-item-priority low"></div>
+                      <strong>Configuración CI/CD</strong>
+                      <p class="kanban-item-assignee">Asignado: Bianca</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="kanban-column">
+                  <div class="kanban-column-header">
+                    <div class="kanban-column-title">Completado</div>
+                    <div class="kanban-column-count">8</div>
+                  </div>
+                  <div class="kanban-items">
+                    <div class="kanban-item">
+                      <div class="kanban-item-priority low"></div>
+                      <strong>Requerimientos</strong>
+                      <p class="kanban-item-assignee">Asignado: Equipo</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendario -->
+          <div id="calendar-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header">
+                <h2 class="panel-title">Calendario de Proyecto</h2>
+                <span class="panel-icon">🗓️</span>
+              </div>
+              <div id="calendar"></div>
+            </div>
+          </div>
+
+          <!-- Mensajes -->
+          <div id="messages-tab" class="tab-content">
+            <div class="panel panel-full">
+              <div class="panel-header">
+                <h2 class="panel-title">Mensajes</h2>
+                <span class="panel-icon">✉️</span>
+              </div>
+              <div class="messaging-container">
+                <div class="conversation-list">
+                  <div class="conversation-header">
+                    <h3>Conversaciones</h3>
+                    <button class="btn btn-secondary">Nuevo</button>
+                  </div>
+                  <input type="text" class="conversation-search" placeholder="Buscar conversaciones...">
+                  <div class="conversation-item active">
+                    <div class="conversation-item-header">
+                      <div class="conversation-item-name">Equipo Portal Académico</div>
+                      <div class="conversation-item-time">Hoy, 10:30</div>
+                    </div>
+                    <div class="conversation-item-preview">Ana: He terminado el módulo de autenticación...</div>
+                  </div>
+                  <div class="conversation-item">
+                    <div class="conversation-item-header">
+                      <div class="conversation-item-name">Carlos Rodríguez</div>
+                      <div class="conversation-item-time">Ayer, 16:45</div>
+                    </div>
+                    <div class="conversation-item-preview">Necesito revisar los requerimientos del cliente...</div>
+                  </div>
+                  <div class="conversation-item">
+                    <div class="conversation-item-header">
+                      <div class="conversation-item-name">Stakeholders</div>
+                      <div class="conversation-item-time">Ayer, 14:20</div>
+                    </div>
+                    <div class="conversation-item-preview">Maria: Tenemos algunos comentarios sobre el diseño...</div>
+                  </div>
+                </div>
+                <div class="message-container">
+                  <div class="message-header">
+                    <div class="message-recipient">Equipo Portal Académico</div>
+                    <div class="message-actions">
+                      <button class="panel-action-btn"><i class="fas fa-phone"></i></button>
+                      <button class="panel-action-btn"><i class="fas fa-video"></i></button>
+                      <button class="panel-action-btn"><i class="fas fa-ellipsis-v"></i></button>
+                    </div>
+                  </div>
+                  <div class="message-content">
+                    <div class="message-item message-item-received">
+                      <div class="message-text">Hola equipo, ¿cómo va el progreso con el módulo de autenticación?</div>
+                      <div class="message-item-time">10:30 AM</div>
+                    </div>
+                    <div class="message-item message-item-sent">
+                      <div class="message-text">Ya casi terminamos, solo faltan las pruebas de integración</div>
+                      <div class="message-item-time">10:32 AM</div>
+                    </div>
+                    <div class="message-item message-item-received">
+                      <div class="message-text">Perfecto, necesitamos que esté listo para mañana</div>
+                      <div class="message-item-time">10:33 AM</div>
+                    </div>
+                  </div>
+                  <div class="message-input-container">
+                    <textarea class="message-input" placeholder="Escribe un mensaje..."></textarea>
+                    <button class="message-send-btn">Enviar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista Power BI para Stakeholder -->
+        <div id="powerbi-view" class="hidden">
+          <div class="powerbi-grid">
+            <div class="powerbi-card">
+              <div class="powerbi-card-header">
+                <div class="powerbi-card-title">Progreso General</div>
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <div class="powerbi-card-value">68%</div>
+              <div class="powerbi-card-change up">
+                <i class="fas fa-arrow-up"></i>
+                <span>5% vs mes anterior</span>
+              </div>
+              <div class="powerbi-card-trend">
+                <canvas id="powerbi-trend-1"></canvas>
+              </div>
+            </div>
+            <div class="powerbi-card">
+              <div class="powerbi-card-header">
+                <div class="powerbi-card-title">Hitos Completados</div>
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <div class="powerbi-card-value">14/20</div>
+              <div class="powerbi-card-change up">
+                <i class="fas fa-arrow-up"></i>
+                <span>2 hitos este mes</span>
+              </div>
+              <div class="powerbi-card-trend">
+                <canvas id="powerbi-trend-2"></canvas>
+              </div>
+            </div>
+            <div class="powerbi-card">
+              <div class="powerbi-card-header">
+                <div class="powerbi-card-title">Presupuesto Utilizado</div>
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <div class="powerbi-card-value">72%</div>
+              <div class="powerbi-card-change down">
+                <i class="fas fa-arrow-down"></i>
+                <span>3% sobre lo planificado</span>
+              </div>
+              <div class="powerbi-card-trend">
+                <canvas id="powerbi-trend-3"></canvas>
+              </div>
+            </div>
+            <div class="powerbi-card powerbi-card-lg">
+              <div class="powerbi-card-header">
+                <div class="powerbi-card-title">Progreso por Proyecto</div>
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <div class="chart-container-lg">
+                <canvas id="powerbi-chart-1"></canvas>
+              </div>
+            </div>
+            <div class="powerbi-card powerbi-card-lg">
+              <div class="powerbi-card-header">
+                <div class="powerbi-card-title">Tendencia de Productividad</div>
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <div class="chart-container-lg">
+                <canvas id="powerbi-chart-2"></canvas>
+              </div>
+            </div>
+            <div class="powerbi-card">
+              <div class="powerbi-card-header">
+                <div class="powerbi-card-title">Riesgos Activos</div>
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <div class="powerbi-card-value">3</div>
+              <div class="powerbi-card-change">
+                <i class="fas fa-equals"></i>
+                <span>Sin cambios</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista para Desarrolladores -->
+        <div id="dev-view" class="hidden">
+          <div class="dashboard-grid">
+            <!-- Panel de carga de archivos -->
+            <div class="panel panel-half">
+              <div class="panel-header">
+                <h2 class="panel-title">Cargar Archivos</h2>
+                <span class="panel-icon"><i class="fas fa-upload"></i></span>
+              </div>
+              <div class="file-upload-container" id="file-upload-container">
+                <div class="file-upload-icon">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="file-upload-text">
+                  Arrastra y suelta archivos aquí o haz clic para seleccionar
+                </div>
+                <input type="file" id="file-input" style="display: none;">
+                <button class="file-upload-btn" id="file-upload-btn">Seleccionar Archivos</button>
+              </div>
+              <div class="file-list" id="file-list">
+                <!-- Llenado por JS -->
+              </div>
+            </div>
+
+            <!-- Panel de tareas editables -->
+            <div class="panel panel-half">
+              <div class="panel-header">
+                <h2 class="panel-title">Mis Tareas</h2>
+                <span class="panel-icon"><i class="fas fa-tasks"></i></span>
+              </div>
+              <table class="table editable-table" id="editable-tasks-table">
+                <thead>
+                  <tr>
+                    <th>Tarea</th>
+                    <th>Estado</th>
+                    <th>Avance</th>
+                    <th>Fecha Límite</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Llenado por JS -->
+                </tbody>
+              </table>
+              <button class="btn btn-secondary" id="add-task-btn" style="margin-top: 1rem;">
+                <i class="fas fa-plus"></i> Agregar Tarea
+              </button>
+            </div>
+
+            <!-- Panel de documentación -->
+            <div class="panel panel-half">
+              <div class="panel-header">
+                <h2 class="panel-title">Documentación</h2>
+                <span class="panel-icon"><i class="fas fa-book"></i></span>
+              </div>
+              <div class="task-list">
+                <div class="task-item">
+                  <div class="task-content">
+                    <div class="task-title">API Documentation</div>
+                    <div class="task-meta">
+                      <div class="task-meta-item">
+                        <i class="fas fa-user"></i>
+                        <span>Carlos R.</span>
+                      </div>
+                      <div class="task-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Actualizado: 2025-05-01</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-actions">
+                    <button class="task-action-btn"><i class="fas fa-eye"></i></button>
+                    <button class="task-action-btn"><i class="fas fa-download"></i></button>
+                  </div>
+                </div>
+                <div class="task-item">
+                  <div class="task-content">
+                    <div class="task-title">Manual de Usuario</div>
+                    <div class="task-meta">
+                      <div class="task-meta-item">
+                        <i class="fas fa-user"></i>
+                        <span>Ana M.</span>
+                      </div>
+                      <div class="task-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Actualizado: 2025-04-28</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-actions">
+                    <button class="task-action-btn"><i class="fas fa-eye"></i></button>
+                    <button class="task-action-btn"><i class="fas fa-download"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel de repositorios -->
+            <div class="panel panel-half">
+              <div class="panel-header">
+                <h2 class="panel-title">Repositorios</h2>
+                <span class="panel-icon"><i class="fab fa-github"></i></span>
+              </div>
+              <div class="task-list">
+                <div class="task-item">
+                  <div class="task-content">
+                    <div class="task-title">Frontend Portal Académico</div>
+                    <div class="task-meta">
+                      <div class="task-meta-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span>main</span>
+                      </div>
+                      <div class="task-meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Último commit: 2 días</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-actions">
+                    <button class="task-action-btn"><i class="fas fa-external-link-alt"></i></button>
+                  </div>
+                </div>
+                <div class="task-item">
+                  <div class="task-content">
+                    <div class="task-title">Backend API</div>
+                    <div class="task-meta">
+                      <div class="task-meta-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span>dev</span>
+                      </div>
+                      <div class="task-meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Último commit: 5 horas</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-actions">
+                    <button class="task-action-btn"><i class="fas fa-external-link-alt"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notificaciones -->
+  <div class="notifications-container" id="notifications-container">
+    <!-- Las notificaciones se añaden dinámicamente -->
+  </div>
+
+  <script>
+    /* === SECCIÓN: Datos de Ejemplo === */
+    const projects = [
+      { id: 1, name: "Portal Académico", progress: 72, budgetUsed: 68 },
+      { id: 2, name: "Infra Cloud", progress: 45, budgetUsed: 52 },
+      { id: 3, name: "App Móvil", progress: 30, budgetUsed: 40 },
+      { id: 4, name: "Migración BD", progress: 85, budgetUsed: 75 }
+    ];
+
+    const kpis = {
+      globalProgress: 68,
+      milestones: { done: 14, total: 20 },
+      hours: { planned: 300, actual: 275 },
+      productivity: [60, 65, 58, 72, 68, 74],
+      tasksDistribution: { todo: 18, inProgress: 7, done: 45 },
+      risks: { active: 3, resolved: 8 }
+    };
+
+    const checkpoints = [
+      { date: "2025-05-20", title: "MVP Login", owner: "Ana" },
+      { date: "2025-06-10", title: "Documentación API", owner: "Carlos" },
+      { date: "2025-06-25", title: "Pruebas de Usuario", owner: "Bianca" },
+      { date: "2025-07-15", title: "Funcionalidad Completa", owner: "David" }
+    ];
+
+    const personalTasks = [
+      { id: 101, title: "Refactorizar Autenticación", status: "In Progress", progress: 75, dueDate: "2025-05-15" },
+      { id: 102, title: "Corregir error en parser Excel", status: "To-Do", progress: 0, dueDate: "2025-05-20" },
+      { id: 103, title: "Escribir documentación API", status: "To-Do", progress: 10, dueDate: "2025-05-25" },
+      { id: 104, title: "Revisar PR #342", status: "In Progress", progress: 50, dueDate: "2025-05-12" }
+    ];
+
+    const risks = [
+      { id: 1, risk: "Retraso en actualización de driver SQL", status: "High" },
+      { id: 2, risk: "Feedback de stakeholder pendiente", status: "Medium" },
+      { id: 3, risk: "Límites de API de terceros", status: "Medium" }
+    ];
+
+    const teamMembers = [
+      { id: 1, name: "Ana Martínez", role: "Frontend Dev", avatar: "A" },
+      { id: 2, name: "Carlos Rodríguez", role: "Backend Dev", avatar: "C" },
+      { id: 3, name: "Bianca López", role: "DevOps", avatar: "B" },
+      { id: 4, name: "David Fernández", role: "Full Stack", avatar: "D" }
+    ];
+
+    const files = [
+      { id: 1, name: "documentacion-api.pdf", type: "pdf", size: "2.4 MB", uploaded: "2025-05-01" },
+      { id: 2, name: "diseños-ui.sketch", type: "sketch", size: "5.1 MB", uploaded: "2025-04-28" },
+      { id: 3, name: "requerimientos.docx", type: "doc", size: "1.2 MB", uploaded: "2025-04-25" }
+    ];
+
+    const messages = [
+      { id: 1, sender: "Ana Martínez", content: "He terminado el módulo de autenticación", time: "10:30 AM", unread: false },
+      { id: 2, sender: "Carlos Rodríguez", content: "Necesito revisar los requerimientos del cliente", time: "Ayer, 4:45 PM", unread: true },
+      { id: 3, sender: "Stakeholders", content: "Tenemos algunos comentarios sobre el diseño", time: "Ayer, 2:20 PM", unread: true }
+    ];
+
+    // Datos para el diagrama Gantt
+    const ganttTasks = [
+      {
+        id: 'Task 1',
+        name: 'Diseño UI/UX',
+        start: '2025-05-01',
+        end: '2025-05-15',
+        progress: 100,
+        dependencies: ''
+      },
+      {
+        id: 'Task 2',
+        name: 'Desarrollo Backend',
+        start: '2025-05-10',
+        end: '2025-05-30',
+        progress: 75,
+        dependencies: 'Task 1'
+      },
+      {
+        id: 'Task 3',
+        name: 'Pruebas de Integración',
+        start: '2025-05-25',
+        end: '2025-06-05',
+        progress: 20,
+        dependencies: 'Task 2'
+      },
+      {
+        id: 'Task 4',
+        name: 'Despliegue en Staging',
+        start: '2025-06-01',
+        end: '2025-06-10',
+        progress: 0,
+        dependencies: 'Task 2, Task 3'
+      }
+    ];
+
+    // Datos para el calendario
+    const calendarEvents = [
+      {
+        title: 'Revisión Sprint',
+        start: '2025-05-05',
+        end: '2025-05-05',
+        color: '#7CFFAC'
+      },
+      {
+        title: 'Entrega MVP',
+        start: '2025-05-10',
+        end: '2025-05-10',
+        color: '#7CFFAC'
+      },
+      {
+        title: 'Reunión con Stakeholders',
+        start: '2025-05-15T10:00:00',
+        end: '2025-05-15T12:00:00',
+        color: '#2196F3'
+      },
+      {
+        title: 'Pruebas de Usuario',
+        start: '2025-05-20',
+        end: '2025-05-22',
+        color: '#FFC107'
+      }
+    ];
+
+    /* === SECCIÓN: Elementos DOM === */
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+    const loginForm = document.getElementById('login-form');
+    const logoutBtn = document.getElementById('logout-btn');
+    const currentRole = document.getElementById('current-role');
+    const projectSelector = document.getElementById('project-selector');
+    const dateStart = document.getElementById('date-start');
+    const dateEnd = document.getElementById('date-end');
+    const globalProgressPanel = document.getElementById('global-progress-panel');
+    const globalProgressValue = document.getElementById('global-progress-value');
+    const milestonesDone = document.getElementById('milestones-done');
+    const milestonesTotal = document.getElementById('milestones-t
