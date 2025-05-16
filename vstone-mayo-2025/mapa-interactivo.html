@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Mapa Interactivo – Demanda Inmobiliaria V Región 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Leaflet core -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <!-- Heatmap plugin -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <style>
+    :root {
+      --bg:#f1faee;--surface:#fff;--primary:#1d3557;--accent:#e63946;--text:#2b2d42;--radius:.75rem;--shadow:0 6px 14px rgba(0,0,0,.08)
+    }
+    @media (prefers-color-scheme:dark){:root{--bg:#0d1321;--surface:#1d2129;--primary:#457b9d;--accent:#e63946;--text:#f0f4f8;--shadow:0 6px 14px rgba(0,0,0,.35)}}
+    html,body{margin:0;padding:0;font-family:system-ui,"Inter",Arial,sans-serif;background:var(--bg);color:var(--text);height:100%}
+    #app{display:flex;flex-direction:column;position:relative;height:100%}
+    header{background:var(--surface);padding:.8rem 1rem;box-shadow:var(--shadow);z-index:900}
+    h1{margin:0;font-size:1.15rem;color:var(--primary)}
+    .controls{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.7rem}
+    .controls select{padding:.45rem .6rem;font-size:.9rem;border:1px solid #c7c7c7;border-radius:.45rem;background:var(--surface);color:var(--text);flex:1 1 120px}
+    #map{flex:1 1 auto;width:100%;min-height:60vh}
+    .legend{position:absolute;bottom:1rem;left:1rem;background:var(--surface);padding:.6rem .8rem;font-size:.8rem;border-radius:var(--radius);box-shadow:var(--shadow);z-index:1000}
+    .legend span{display:inline-block;width:1.1rem;height:.5rem;margin-right:.3rem;vertical-align:middle}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Mapa interactivo · Demanda inmobiliaria (V Región 2025)</h1>
+      <div class="controls">
+        <select id="tipo" aria-label="Tipo de propiedad">
+          <option value="departamento" selected>Departamento</option>
+          <option value="casa">Casa</option>
+        </select>
+        <select id="plus" aria-label="Filtro plusvalía">
+          <option value="all" selected>Todos los sectores</option>
+          <option value="prime">Prime</option>
+          <option value="estandar">Estándar</option>
+          <option value="periferico">Periférico</option>
+        </select>
+      </div>
+    </header>
+    <div id="map"></div>
+    <div class="legend"><strong>Demanda</strong><br>
+      <span style="background:#ffffb2"></span>Muy baja &nbsp;
+      <span style="background:#fecc5c"></span>Baja &nbsp;
+      <span style="background:#fd8d3c"></span>Media &nbsp;
+      <span style="background:#f03b20"></span>Alta &nbsp;
+      <span style="background:#bd0026"></span>Muy alta
+    </div>
+  </div>
+
+<script>
+// ---- Datos reales 2025 (UF/m² y demanda) ----
+const BASE_DEPTS = [
+  { comuna:"Concón",        lat:-32.9151, lng:-71.5268, ufm2:72.3, demanda:0.95, plus:"prime" },
+  { comuna:"Viña del Mar",  lat:-33.0245, lng:-71.5520, ufm2:68.6, demanda:0.85, plus:"prime" },
+  { comuna:"Valparaíso",    lat:-33.0472, lng:-71.6127, ufm2:59.3, demanda:0.70, plus:"estandar" },
+  { comuna:"Quilpué",       lat:-33.0458, lng:-71.4457, ufm2:40.4, demanda:0.60, plus:"estandar" },
+  { comuna:"Villa Alemana", lat:-33.0422, lng:-71.3720, ufm2:33.5, demanda:0.55, plus:"periferico" },
+  { comuna:"Quillota",      lat:-32.8800, lng:-71.2489, ufm2:56.2, demanda:0.50, plus:"periferico" }
+];
+// Generamos array para casas (−33 % UF/m², +0.05 demanda)
+const BASE_CASAS = BASE_DEPTS.map(o=>({
+  ...o,
+  ufm2: +(o.ufm2*0.67).toFixed(1),
+  demanda: Math.min(1, +(o.demanda+0.05).toFixed(2))
+}));
+
+const DATA = { departamento: BASE_DEPTS, casa: BASE_CASAS };
+
+// ---- Funciones ----
+function jitterPoint(base, spread=0.01){
+  return [
+    base.lat + (Math.random()-0.5)*spread,
+    base.lng + (Math.random()-0.5)*spread,
+    base.demanda + (Math.random()-0.1)*0.1 // ligera variación
+  ];
+}
+// Genera N puntos por comuna
+function generateHeatPoints(array, n=40){
+  const pts=[];
+  array.forEach(b=>{ for(let i=0;i<n;i++) pts.push(jitterPoint(b)); });
+  return pts;
+}
+
+let map, heat;
+function init(){
+  map=L.map('map',{center:[-33.03,-71.55],zoom:11,minZoom:9,maxZoom:16});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+  updateHeat();
+}
+
+function updateHeat(){
+  const tipo=document.getElementById('tipo').value;
+  const plus=document.getElementById('plus').value;
+  const base=DATA[tipo].filter(d=> plus==='all'||d.plus===plus);
+  const points=generateHeatPoints(base,40);
+  if(heat) heat.setLatLngs(points); else {
+    heat=L.heatLayer(points,{
+      radius:22,blur:18,max:1,
+      gradient:{0.2:'#ffffb2',0.4:'#fecc5c',0.6:'#fd8d3c',0.8:'#f03b20',1:'#bd0026'}
+    }).addTo(map);
+  }
+  const bounds=points.map(p=>[p[0],p[1]]);
+  if(bounds.length) map.fitBounds(bounds,{padding:[50,50],maxZoom:13});
+}
+
+window.addEventListener('load',init);
+document.getElementById('tipo').addEventListener('change',updateHeat);
+document.getElementById('plus').addEventListener('change',updateHeat);
+</script>
+</body>
+</html>
