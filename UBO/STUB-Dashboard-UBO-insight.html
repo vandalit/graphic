@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UBO Insight - Project Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --ubo-blue: #0056b3;
+            --ubo-light-blue: #007bff;
+            --ubo-green: #28a745;
+            --ubo-red: #dc3545;
+            --ubo-yellow: #ffc107;
+            --ubo-gray: #6c757d;
+            --ubo-light-gray: #f8f9fa;
+            --ubo-dark: #343a40;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--ubo-blue), var(--ubo-light-blue));
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .login-logo {
+            width: 120px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ubo-blue);
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--ubo-gray);
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ubo-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--ubo-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+            outline: none;
+        }
+
+        .role-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-option {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .role-option:hover {
+            border-color: var(--ubo-blue);
+            background-color: rgba(0, 86, 179, 0.05);
+        }
+
+        .role-option.active {
+            border-color: var(--ubo-blue);
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .role-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: white;
+        }
+
+        .role-icon.developer {
+            background-color: var(--ubo-green);
+        }
+
+        .role-icon.pm {
+            background-color: var(--ubo-blue);
+        }
+
+        .role-icon.stakeholder {
+            background-color: var(--ubo-yellow);
+            color: var(--ubo-dark);
+        }
+
+        .role-icon.admin {
+            background-color: var(--ubo-red);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--ubo-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #004494;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo {
+            width: 40px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ubo-blue);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--ubo-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            color: var(--ubo-blue);
+            background-color: rgba(0, 86, 179, 0.05);
+        }
+
+        .menu-item.active {
+            color: var(--ubo-blue);
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--ubo-blue);
+        }
+
+        .menu-item i {
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--ubo-light-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--ubo-gray);
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--ubo-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            color: var(--ubo-red);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            padding: 15px 20px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 5;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: var(--ubo-gray);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--ubo-blue);
+            font-weight: 500;
+        }
+
+        .breadcrumb-separator {
+            color: var(--ubo-gray);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .project-selector {
+            position: relative;
+        }
+
+        .project-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .project-dropdown:hover {
+            border-color: var(--ubo-blue);
+        }
+
+        .project-name {
+            font-weight: 500;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 250px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 86, 179, 0.05);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 5px 0;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--ubo-gray);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            color: var(--ubo-blue);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--ubo-red);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--ubo-light-gray);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ubo-dark);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: var(--ubo-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            border-color: #ccc;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .widget {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .widget:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .widget.dragging {
+            opacity: 0.8;
+            border: 1px dashed var(--ubo-blue);
+            background-color: rgba(0, 86, 179, 0.05);
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .widget-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--ubo-dark);
+        }
+
+        .widget-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .widget-action {
+            background: none;
+            border: none;
+            color: var(--ubo-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .widget-action:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--ubo-blue);
+        }
+
+        .widget-body {
+            height: calc(100% - 40px);
+        }
+
+        /* Widget Sizes */
+        .widget-sm {
+            grid-column: span 4;
+        }
+
+        .widget-md {
+            grid-column: span 6;
+        }
+
+        .widget-lg {
+            grid-column: span 8;
+        }
+
+        .widget-xl {
+            grid-column: span 12;
+        }
+
+        /* Specific Widgets */
+        .kpi-widget {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--ubo-blue);
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            color: var(--ubo-gray);
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .kpi-change.positive {
+            color: var(--ubo-green);
+        }
+
+        .kpi-change.negative {
+            color: var(--ubo-red);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 100%;
+            min-height: 200px;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .task-checkbox:checked {
+            background-color: var(--ubo-green);
+            border-color: var(--ubo-green);
+        }
+
+        .task-checkbox:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-name {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--ubo-gray);
+        }
+
+        .task-priority {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .task-priority.high {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--ubo-red);
+        }
+
+        .task-priority.medium {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--ubo-yellow);
+        }
+
+        .task-priority.low {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--ubo-green);
+        }
+
+        .task-due {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .task-due.overdue {
+            color: var(--ubo-red);
+        }
+
+        .task-due.today {
+            color: var(--ubo-yellow);
+        }
+
+        .task-actions {
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+
+        .task-btn {
+            background: none;
+            border: none;
+            color: var(--ubo-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .task-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--ubo-blue);
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .member-role {
+            font-size: 12px;
+            color: var(--ubo-gray);
+        }
+
+        .member-stats {
+            font-size: 12px;
+            color: var(--ubo-blue);
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--ubo-blue);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tab:hover {
+            color: var(--ubo-blue);
+        }
+
+        .admin-tab.active {
+            color: var(--ubo-blue);
+            border-bottom-color: var(--ubo-blue);
+            font-weight: 500;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-table th {
+            font-weight: 500;
+            color: var(--ubo-gray);
+        }
+
+        .admin-table tr:hover {
+            background-color: rgba(0, 86, 179, 0.05);
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--ubo-green);
+        }
+
+        .status-badge.inactive {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--ubo-gray);
+        }
+
+        .status-badge.pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--ubo-yellow);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .widget-sm {
+                grid-column: span 6;
+            }
+            .widget-md, .widget-lg {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            .sidebar-header, .sidebar-footer {
+                justify-content: center;
+            }
+            .sidebar-title, .user-info, .menu-item span {
+                display: none;
+            }
+            .menu-item {
+                justify-content: center;
+            }
+            .widget-sm {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .top-bar-actions {
+                gap: 10px;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .page-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip-text {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--ubo-dark);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+            margin-bottom: 5px;
+        }
+
+        .tooltip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--ubo-dark) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--ubo-gray);
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--ubo-red);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-card">
+            <img src="https://via.placeholder.com/120x60?text=UBO+Insight" alt="UBO Insight Logo" class="login-logo">
+            <h1 class="login-title">UBO Insight</h1>
+            <p class="login-subtitle">Project Dashboard for University Bernardo O'Higgins</p>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select your role</label>
+                    <div class="role-selector">
+                        <div class="role-option" data-role="developer">
+                            <div class="role-icon developer">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <span>Developer</span>
+                        </div>
+                        <div class="role-option" data-role="pm">
+                            <div class="role-icon pm">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <span>Project Manager</span>
+                        </div>
+                        <div class="role-option" data-role="stakeholder">
+                            <div class="role-icon stakeholder">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <span>Stakeholder</span>
+                        </div>
+                        <div class="role-option" data-role="admin">
+                            <div class="role-icon admin">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <span>Administrator</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="container" id="appContainer" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://via.placeholder.com/40x40?text=UBO" alt="UBO Logo" class="sidebar-logo">
+                <span class="sidebar-title">UBO Insight</span>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-view="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item" data-view="projects">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Projects</span>
+                </div>
+                <div class="menu-item" data-view="tasks">
+                    <i class="fas fa-tasks"></i>
+                    <span>Tasks</span>
+                </div>
+                <div class="menu-item" data-view="team">
+                    <i class="fas fa-users"></i>
+                    <span>Team</span>
+                </div>
+                <div class="menu-item" data-view="reports">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </div>
+                <div class="menu-item admin-only" data-view="admin" style="display: none;">
+                    <i class="fas fa-cog"></i>
+                    <span>Administration</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-avatar" id="userAvatar">JD</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">John Doe</div>
+                    <div class="user-role" id="userRole">Developer</div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">UBO Insight</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-item active" id="currentView">Dashboard</span>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <div class="project-selector">
+                        <div class="project-dropdown" id="projectDropdown">
+                            <i class="fas fa-project-diagram"></i>
+                            <span class="project-name">Digital Transformation</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu" id="projectMenu">
+                            <div class="dropdown-item" data-project="digital-transformation">
+                                <i class="fas fa-check"></i> Digital Transformation
+                            </div>
+                            <div class="dropdown-item" data-project="student-portal">
+                                Student Portal Redesign
+                            </div>
+                            <div class="dropdown-item" data-project="erp-implementation">
+                                ERP Implementation
+                            </div>
+                            <div class="dropdown-item" data-project="research-platform">
+                                Research Platform
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <i class="fas fa-plus"></i> Create New Project
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard View -->
+                <div id="dashboardView">
+                    <div class="page-header">
+                        <h1 class="page-title">Project Dashboard</h1>
+                        <div class="page-actions">
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-filter"></i> Filters
+                            </button>
+                            <button class="btn btn-primary" id="editDashboardBtn">
+                                <i class="fas fa-edit"></i> Edit Dashboard
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard" id="dashboardGrid">
+                        <!-- Widgets will be dynamically added here based on user role -->
+                    </div>
+                </div>
+                
+                <!-- Admin View -->
+                <div id="adminView" style="display: none;">
+                    <div class="page-header">
+                        <h1 class="page-title">Administration Panel</h1>
+                    </div>
+                    
+                    <div class="admin-panel">
+                        <div class="admin-tabs">
+                            <div class="admin-tab active" data-tab="users">Users</div>
+                            <div class="admin-tab" data-tab="roles">Roles</div>
+                            <div class="admin-tab" data-tab="settings">Settings</div>
+                            <div class="admin-tab" data-tab="integrations">Integrations</div>
+                        </div>
+                        
+                        <div id="usersTab">
+                            <div class="page-actions" style="margin-bottom: 20px;">
+                                <button class="btn btn-primary" id="addUserBtn">
+                                    <i class="fas fa-plus"></i> Add User
+                                </button>
+                            </div>
+                            
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Laura González</td>
+                                        <td>laura.gonzalez@ubo.cl</td>
+                                        <td>Project Manager</td>
+                                        <td><span class="status-badge active">Active</span></td>
+                                        <td>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="tooltip-text">Edit User</span>
+                                            </button>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="tooltip-text">Delete User</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Carlos Méndez</td>
+                                        <td>carlos.mendez@ubo.cl</td>
+                                        <td>Developer</td>
+                                        <td><span class="status-badge active">Active</span></td>
+                                        <td>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="tooltip-text">Edit User</span>
+                                            </button>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="tooltip-text">Delete User</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dr. Rodrigo Silva</td>
+                                        <td>rodrigo.silva@ubo.cl</td>
+                                        <td>Stakeholder</td>
+                                        <td><span class="status-badge active">Active</span></td>
+                                        <td>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="tooltip-text">Edit User</span>
+                                            </button>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="tooltip-text">Delete User</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>María Fernández</td>
+                                        <td>maria.fernandez@ubo.cl</td>
+                                        <td>Administrator</td>
+                                        <td><span class="status-badge active">Active</span></td>
+                                        <td>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="tooltip-text">Edit User</span>
+                                            </button>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="tooltip-text">Delete User</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Juan Pérez</td>
+                                        <td>juan.perez@ubo.cl</td>
+                                        <td>Developer</td>
+                                        <td><span class="status-badge inactive">Inactive</span></td>
+                                        <td>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="tooltip-text">Edit User</span>
+                                            </button>
+                                            <button class="task-btn tooltip">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="tooltip-text">Delete User</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Dashboard Modal -->
+    <div class="modal" id="editDashboardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Customize Your Dashboard</h3>
+                <button class="modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Drag and drop widgets to rearrange your dashboard. Click the eye icon to show/hide widgets.</p>
+                
+                <div class="dashboard" id="editDashboardGrid">
+                    <!-- Widgets for editing will be added here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveDashboardBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New User</h3>
+                <button class="modal-close" id="closeAddUserModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="newUserName">Full Name</label>
+                        <input type="text" id="newUserName" class="form-control" placeholder="Enter full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserEmail">Email</label>
+                        <input type="email" id="newUserEmail" class="form-control" placeholder="Enter email address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserRole">Role</label>
+                        <select id="newUserRole" class="form-control" required>
+                            <option value="">Select a role</option>
+                            <option value="developer">Developer</option>
+                            <option value="pm">Project Manager</option>
+                            <option value="stakeholder">Stakeholder</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newUserStatus">Status</label>
+                        <select id="newUserStatus" class="form-control" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAddUserBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveUserBtn">Save User</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current user state
+        let currentUser = {
+            name: "John Doe",
+            email: "john.doe@ubo.cl",
+            role: "developer",
+            avatar: "JD"
+        };
+
+        // Sample projects data
+        const projects = [
+            { id: "digital-transformation", name: "Digital Transformation", progress: 75 },
+            { id: "student-portal", name: "Student Portal Redesign", progress: 45 },
+            { id: "erp-implementation", name: "ERP Implementation", progress: 20 },
+            { id: "research-platform", name: "Research Platform", progress: 90 }
+        ];
+
+        // Sample tasks data
+        const tasks = [
+            { id: 1, name: "Implement authentication module", project: "Digital Transformation", assignedTo: "John Doe", dueDate: "2025-06-15", priority: "high", completed: false },
+            { id: 2, name: "Design database schema", project: "Digital Transformation", assignedTo: "John Doe", dueDate: "2025-06-10", priority: "medium", completed: true },
+            { id: 3, name: "Create API endpoints", project: "Digital Transformation", assignedTo: "John Doe", dueDate: "2025-06-12", priority: "high", completed: false },
+            { id: 4, name: "Write unit tests", project: "Digital Transformation", assignedTo: "John Doe", dueDate: "2025-06-18", priority: "low", completed: false },
+            { id: 5, name: "Review UI mockups", project: "Student Portal Redesign", assignedTo: "John Doe", dueDate: "2025-06-08", priority: "medium", completed: false },
+            { id: 6, name: "Prepare project documentation", project: "ERP Implementation", assignedTo: "John Doe", dueDate: "2025-06-20", priority: "low", completed: false }
+        ];
+
+        // Sample team members
+        const teamMembers = [
+            { id: 1, name: "Laura González", role: "Project Manager", tasksCompleted: 42, tasksPending: 8 },
+            { id: 2, name: "Carlos Méndez", role: "Developer", tasksCompleted: 35, tasksPending: 5 },
+            { id: 3, name: "Ana Rodríguez", role: "Developer", tasksCompleted: 28, tasksPending: 12 },
+            { id: 4, name: "Pedro Sánchez", role: "UI Designer", tasksCompleted: 15, tasksPending: 3 },
+            { id: 5, name: "María Fernández", role: "QA Engineer", tasksCompleted: 20, tasksPending: 5 }
+        ];
+
+        // Widget configurations for different roles
+        const roleWidgets = {
+            developer: [
+                { id: "my-tasks", title: "My Tasks", size: "md", type: "task-list" },
+                { id: "task-progress", title: "Task Progress", size: "sm", type: "kpi", value: "65%", label: "Tasks Completed", change: "+5%" },
+                { id: "hours-logged", title: "Hours Logged", size: "sm", type: "kpi", value: "32", label: "This Week", change: "+3" },
+                { id: "project-progress", title: "Project Progress", size: "md", type: "chart", chartType: "bar" },
+                { id: "upcoming-milestones", title: "Upcoming Milestones", size: "sm", type: "list" }
+            ],
+            pm: [
+                { id: "project-health", title: "Project Health", size: "sm", type: "kpi", value: "78%", label: "On Track", change: "-2%" },
+                { id: "tasks-by-status", title: "Tasks by Status", size: "md", type: "chart", chartType: "pie" },
+                { id: "team-performance", title: "Team Performance", size: "lg", type: "chart", chartType: "line" },
+                { id: "critical-tasks", title: "Critical Tasks", size: "md", type: "task-list" },
+                { id: "milestones", title: "Milestones", size: "sm", type: "list" },
+                { id: "time-tracking", title: "Time Tracking", size: "md", type: "chart", chartType: "bar" }
+            ],
+            stakeholder: [
+                { id: "overall-progress", title: "Overall Progress", size: "xl", type: "chart", chartType: "gauge" },
+                { id: "budget-utilization", title: "Budget Utilization", size: "md", type: "kpi", value: "62%", label: "Budget Spent", change: "+8%" },
+                { id: "key-metrics", title: "Key Metrics", size: "md", type: "chart", chartType: "radar" },
+                { id: "project-comparison", title: "Project Comparison", size: "xl", type: "chart", chartType: "bar" }
+            ],
+            admin: [
+                { id: "active-users", title: "Active Users", size: "sm", type: "kpi", value: "24", label: "Users", change: "+3" },
+                { id: "system-health", title: "System Health", size: "sm", type: "kpi", value: "100%", label: "Uptime", change: "0%" },
+                { id: "api-usage", title: "API Usage", size: "md", type: "chart", chartType: "line" },
+                { id: "recent-activities", title: "Recent Activities", size: "lg", type: "list" },
+                { id: "storage-usage", title: "Storage Usage", size: "md", type: "chart", chartType: "doughnut" }
+            ]
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const roleOption = document.querySelector('.role-option.active');
+                
+                if (!roleOption) {
+                    alert('Please select your role');
+                    return;
+                }
+                
+                const role = roleOption.getAttribute('data-role');
+                
+                // Set current user based on role
+                switch(role) {
+                    case 'developer':
+                        currentUser = {
+                            name: "Carlos Méndez",
+                            email: "carlos.mendez@ubo.cl",
+                            role: "developer",
+                            avatar: "CM"
+                        };
+                        break;
+                    case 'pm':
+                        currentUser = {
+                            name: "Laura González",
+                            email: "laura.gonzalez@ubo.cl",
+                            role: "pm",
+                            avatar: "LG"
+                        };
+                        break;
+                    case 'stakeholder':
+                        currentUser = {
+                            name: "Dr. Rodrigo Silva",
+                            email: "rodrigo.silva@ubo.cl",
+                            role: "stakeholder",
+                            avatar: "RS"
+                        };
+                        break;
+                    case 'admin':
+                        currentUser = {
+                            name: "María Fernández",
+                            email: "maria.fernandez@ubo.cl",
+                            role: "admin",
+                            avatar: "MF"
+                        };
+                        break;
+                }
+                
+                // Show the app and hide login
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                
+                // Update UI based on role
+                updateUIForRole();
+                
+                // Load dashboard
+                loadDashboard();
+            });
+            
+            // Role selection
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('active'));
+            });
+            
+            // Menu navigation
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const view = this.getAttribute('data-view');
+                    document.getElementById('currentView').textContent = this.querySelector('span').textContent;
+                    
+                    // Hide all views
+                    document.querySelectorAll('#dashboardView, #adminView').forEach(v => v.style.display = 'none');
+                    
+                    // Show selected view
+                    if (view === 'admin') {
+                        document.getElementById('adminView').style.display = 'block';
+                    } else {
+                        document.getElementById('dashboardView').style.display = 'block';
+                    }
+                });
+            });
+            
+            // Project dropdown
+            document.getElementById('projectDropdown').addEventListener('click', function() {
+                document.getElementById('projectMenu').classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.project-selector')) {
+                    document.getElementById('projectMenu').classList.remove('show');
+                }
+            });
+            
+            // Project selection
+            document.querySelectorAll('.dropdown-item[data-project]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const projectId = this.getAttribute('data-project');
+                    const project = projects.find(p => p.id === projectId);
+                    
+                    document.querySelector('.project-name').textContent = project.name;
+                    document.querySelectorAll('.dropdown-item').forEach(i => i.querySelector('i')?.remove());
+                    this.innerHTML = '<i class="fas fa-check"></i> ' + project.name;
+                    
+                    document.getElementById('projectMenu').classList.remove('show');
+                    
+                    // Update dashboard with new project data
+                    loadDashboard();
+                });
+            });
+            
+            // Edit dashboard button
+            document.getElementById('editDashboardBtn').addEventListener('click', function() {
+                openEditDashboardModal();
+            });
+            
+            // Close edit modal
+            document.getElementById('closeEditModal').addEventListener('click', function() {
+                document.getElementById('editDashboardModal').classList.remove('show');
+            });
+            
+            document.getElementById('cancelEditBtn').addEventListener('click', function() {
+                document.getElementById('editDashboardModal').classList.remove('show');
+            });
+            
+            // Save dashboard changes
+            document.getElementById('saveDashboardBtn').addEventListener('click', function() {
+                // In a real app, we would save the widget order and visibility to the server
+                document.getElementById('editDashboardModal').classList.remove('show');
+                alert('Dashboard preferences saved!');
+            });
+            
+            // Add user button (admin)
+            document.getElementById('addUserBtn').addEventListener('click', function() {
+                document.getElementById('addUserModal').classList.add('show');
+            });
+            
+            // Close add user modal
+            document.getElementById('closeAddUserModal').addEventListener('click', function() {
+                document.getElementById('addUserModal').classList.remove('show');
+            });
+            
+            document.getElementById('cancelAddUserBtn').addEventListener('click', function() {
+                document.getElementById('addUserModal').classList.remove('show');
+            });
+            
+            // Save new user
+            document.getElementById('saveUserBtn').addEventListener('click', function() {
+                const name = document.getElementById('newUserName').value;
+                const email = document.getElementById('newUserEmail').value;
+                const role = document.getElementById('newUserRole').value;
+                const status = document.getElementById('newUserStatus').value;
+                
+                if (!name || !email || !role) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+                
+                // In a real app, we would send this data to the server
+                alert(`User ${name} (${email}) added as ${role}`);
+                document.getElementById('addUserModal').classList.remove('show');
+                document.getElementById('addUserForm').reset();
+            });
+        });
+        
+        // Update UI based on current user role
+        function updateUIForRole() {
+            // Update user info in sidebar
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+            document.getElementById('userAvatar').textContent = currentUser.avatar;
+            
+            // Show/hide admin menu item
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = currentUser.role === 'admin' ? 'flex' : 'none';
+            });
+        }
+        
+        // Load dashboard with widgets based on user role
+        function loadDashboard() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = '';
+            
+            const widgets = roleWidgets[currentUser.role];
+            
+            widgets.forEach(widget => {
+                const widgetEl = createWidget(widget);
+                dashboardGrid.appendChild(widgetEl);
+            });
+            
+            // Initialize Sortable for dashboard editing
+            new Sortable(dashboardGrid, {
+                animation: 150,
+                ghostClass: 'dragging',
+                handle: '.widget-header'
+            });
+        }
+        
+        // Create a widget element
+        function createWidget(config) {
+            const widgetEl = document.createElement('div');
+            widgetEl.className = `widget widget-${config.size}`;
+            widgetEl.id = `widget-${config.id}`;
+            
+            // Widget header
+            const header = document.createElement('div');
+            header.className = 'widget-header';
+            
+            const title = document.createElement('h3');
+            title.className = 'widget-title';
+            title.textContent = config.title;
+            
+            const actions = document.createElement('div');
+            actions.className = 'widget-actions';
+            
+            const refreshBtn = document.createElement('button');
+            refreshBtn.className = 'widget-action tooltip';
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            refreshBtn.addEventListener('click', function() {
+                refreshWidget(config.id);
+            });
+            
+            const tooltip = document.createElement('span');
+            tooltip.className = 'tooltip-text';
+            tooltip.textContent = 'Refresh';
+            refreshBtn.appendChild(tooltip);
+            
+            actions.appendChild(refreshBtn);
+            header.appendChild(title);
+            header.appendChild(actions);
+            widgetEl.appendChild(header);
+            
+            // Widget body
+            const body = document.createElement('div');
+            body.className = 'widget-body';
+            
+            switch(config.type) {
+                case 'kpi':
+                    body.innerHTML = `
+                        <div class="kpi-widget">
+                            <div class="kpi-value">${config.value}</div>
+                            <div class="kpi-label">${config.label}</div>
+                            <div class="kpi-change ${config.change.startsWith('+') ? 'positive' : 'negative'}">
+                                <i class="fas fa-arrow-${config.change.startsWith('+') ? 'up' : 'down'}"></i>
+                                ${config.change}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'task-list':
+                    const taskList = document.createElement('ul');
+                    taskList.className = 'task-list';
+                    
+                    // Filter tasks for current user if developer
+                    let filteredTasks = tasks;
+                    if (currentUser.role === 'developer') {
+                        filteredTasks = tasks.filter(task => task.assignedTo === currentUser.name);
+                    }
+                    
+                    // Show only a few tasks
+                    const tasksToShow = filteredTasks.slice(0, 5);
+                    
+                    tasksToShow.forEach(task => {
+                        const dueDate = new Date(task.dueDate);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        const taskItem = document.createElement('li');
+                        taskItem.className = 'task-item';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'task-checkbox';
+                        checkbox.checked = task.completed;
+                        checkbox.addEventListener('change', function() {
+                            task.completed = this.checked;
+                            this.parentNode.querySelector('.task-name').style.textDecoration = 
+                                this.checked ? 'line-through' : 'none';
+                        });
+                        
+                        const taskInfo = document.createElement('div');
+                        taskInfo.className = 'task-info';
+                        
+                        const taskName = document.createElement('div');
+                        taskName.className = 'task-name';
+                        taskName.textContent = task.name;
+                        taskName.style.textDecoration = task.completed ? 'line-through' : 'none';
+                        
+                        const taskMeta = document.createElement('div');
+                        taskMeta.className = 'task-meta';
+                        
+                        const priority = document.createElement('span');
+                        priority.className = `task-priority ${task.priority}`;
+                        priority.textContent = task.priority;
+                        
+                        const due = document.createElement('span');
+                        due.className = 'task-due';
+                        if (dueDate < today) {
+                            due.classList.add('overdue');
+                        } else if (dueDate.toDateString() === today.toDateString()) {
+                            due.classList.add('today');
+                        }
+                        due.innerHTML = `<i class="far fa-calendar-alt"></i> ${dueDate.toLocaleDateString()}`;
+                        
+                        taskMeta.appendChild(priority);
+                        taskMeta.appendChild(due);
+                        taskInfo.appendChild(taskName);
+                        taskInfo.appendChild(taskMeta);
+                        
+                        const taskActions = document.createElement('div');
+                        taskActions.className = 'task-actions';
+                        
+                        const viewBtn = document.createElement('button');
+                        viewBtn.className = 'task-btn tooltip';
+                        viewBtn.innerHTML = '<i class="far fa-eye"></i>';
+                        
+                        const viewTooltip = document.createElement('span');
+                        viewTooltip.className = 'tooltip-text';
+                        viewTooltip.textContent = 'View Details';
+                        viewBtn.appendChild(viewTooltip);
+                        
+                        taskActions.appendChild(viewBtn);
+                        
+                        taskItem.appendChild(checkbox);
+                        taskItem.appendChild(taskInfo);
+                        taskItem.appendChild(taskActions);
+                        taskList.appendChild(taskItem);
+                    });
+                    
+                    body.appendChild(taskList);
+                    break;
+                    
+                case 'chart':
+                    const chartContainer = document.createElement('div');
+                    chartContainer.className = 'chart-container';
+                    body.appendChild(chartContainer);
+                    
+                    // Create chart after widget is added to DOM
+                    setTimeout(() => {
+                        createChart(chartContainer, config.chartType);
+                    }, 100);
+                    break;
+                    
+                case 'list':
+                    // Simple list widget
+                    const listItems = [
+                        'Milestone 1: Project Kickoff - Completed',
+                        'Milestone 2: UI Design - In Progress',
+                        'Milestone 3: Backend Development - Starts Jun 15',
+                        'Milestone 4: Testing - Starts Jul 1',
+                        'Milestone 5: Deployment - Aug 1'
+                    ];
+                    
+                    const list = document.createElement('ul');
+                    list.className = 'task-list';
+                    
+                    listItems.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'task-item';
+                        li.textContent = item;
+                        list.appendChild(li);
+                    });
+                    
+                    body.appendChild(list);
+                    break;
+            }
+            
+            widgetEl.appendChild(body);
+            return widgetEl;
+        }
+        
+        // Create a chart in a widget
+        function createChart(container, type) {
+            const canvas = document.createElement('canvas');
+            container.appendChild(canvas);
+            
+            let config;
+            
+            switch(type) {
+                case 'bar':
+                    config = {
+                        type: 'bar',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Planned',
+                                data: [30, 45, 60, 75, 90, 100],
+                                backgroundColor: 'rgba(0, 86, 179, 0.7)',
+                                borderColor: 'rgba(0, 86, 179, 1)',
+                                borderWidth: 1
+                            }, {
+                                label: 'Actual',
+                                data: [25, 40, 55, 65, 80, 85],
+                                backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                                borderColor: 'rgba(40, 167, 69, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    };
+                    break;
+                    
+                case 'pie':
+                    config = {
+                        type: 'pie',
+                        data: {
+                            labels: ['Completed', 'In Progress', 'Not Started', 'Blocked'],
+                            datasets: [{
+                                data: [45, 30, 15, 10],
+                                backgroundColor: [
+                                    'rgba(40, 167, 69, 0.7)',
+                                    'rgba(0, 86, 179, 0.7)',
+                                    'rgba(108, 117, 125, 0.7)',
+                                    'rgba(220, 53, 69, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(40, 167, 69, 1)',
+                                    'rgba(0, 86, 179, 1)',
+                                    'rgba(108, 117, 125, 1)',
+                                    'rgba(220, 53, 69, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    };
+                    break;
+                    
+                case 'line':
+                    config = {
+                        type: 'line',
+                        data: {
+                            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                            datasets: [
+                                {
+                                    label: 'Laura González',
+                                    data: [12, 19, 15, 25, 22, 30],
+                                    borderColor: 'rgba(0, 86, 179, 1)',
+                                    backgroundColor: 'rgba(0, 86, 179, 0.1)',
+                                    tension: 0.1,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Carlos Méndez',
+                                    data: [8, 12, 18, 20, 25, 28],
+                                    borderColor: 'rgba(40, 167, 69, 1)',
+                                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                                    tension: 0.1,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Ana Rodríguez',
+                                    data: [5, 10, 12, 15, 18, 20],
+                                    borderColor: 'rgba(255, 193, 7, 1)',
+                                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                                    tension: 0.1,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    };
+                    break;
+                    
+                case 'radar':
+                    config = {
+                        type: 'radar',
+                        data: {
+                            labels: ['Budget', 'Timeline', 'Quality', 'Scope', 'Team Satisfaction'],
+                            datasets: [{
+                                label: 'Current Project',
+                                data: [75, 65, 80, 70, 85],
+                                backgroundColor: 'rgba(0, 86, 179, 0.2)',
+                                borderColor: 'rgba(0, 86, 179, 1)',
+                                pointBackgroundColor: 'rgba(0, 86, 179, 1)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgba(0, 86, 179, 1)'
+                            }, {
+                                label: 'UBO Average',
+                                data: [65, 70, 75, 65, 75],
+                                backgroundColor: 'rgba(108, 117, 125, 0.2)',
+                                borderColor: 'rgba(108, 117, 125, 1)',
+                                pointBackgroundColor: 'rgba(108, 117, 125, 1)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgba(108, 117, 125, 1)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    angleLines: {
+                                        display: true
+                                    },
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
+                                }
+                            }
+                        }
+                    };
+                    break;
+                    
+                case 'doughnut':
+                    config = {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Database', 'Files', 'Backups', 'Logs'],
+                            datasets: [{
+                                data: [45, 30, 15, 10],
+                                backgroundColor: [
+                                    'rgba(0, 86, 179, 0.7)',
+                                    'rgba(40, 167, 69, 0.7)',
+                                    'rgba(255, 193, 7, 0.7)',
+                                    'rgba(220, 53, 69, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(0, 86, 179, 1)',
+                                    'rgba(40, 167, 69, 1)',
+                                    'rgba(255, 193, 7, 1)',
+                                    'rgba(220, 53, 69, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '70%'
+                        }
+                    };
+                    break;
+                    
+                case 'gauge':
+                    // Gauge chart is a custom variation of doughnut
+                    config = {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Completed', 'Remaining'],
+                            datasets: [{
+                                data: [75, 25],
+                                backgroundColor: [
+                                    'rgba(40, 167, 69, 0.7)',
+                                    'rgba(238, 238, 238, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(40, 167, 69, 1)',
+                                    'rgba(204, 204, 204, 1)'
+                                ],
+                                borderWidth: 0,
+                                circumference: 270,
+                                rotation: 225
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '80%',
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    enabled: false
+                                }
+                            }
+                        }
+                    };
+                    
+                    // Add gauge value text
+                    const gaugeValue = document.createElement('div');
+                    gaugeValue.className = 'kpi-value';
+                    gaugeValue.textContent = '75%';
+                    gaugeValue.style.position = 'absolute';
+                    gaugeValue.style.top = '50%';
+                    gaugeValue.style.left = '50%';
+                    gaugeValue.style.transform = 'translate(-50%, -50%)';
+                    gaugeValue.style.fontSize = '24px';
+                    gaugeValue.style.fontWeight = 'bold';
+                    gaugeValue.style.color = 'var(--ubo-blue)';
+                    
+                    const gaugeLabel = document.createElement('div');
+                    gaugeLabel.className = 'kpi-label';
+                    gaugeLabel.textContent = 'Project Completion';
+                    gaugeLabel.style.position = 'absolute';
+                    gaugeLabel.style.bottom = '20%';
+                    gaugeLabel.style.left = '50%';
+                    gaugeLabel.style.transform = 'translateX(-50%)';
+                    gaugeLabel.style.fontSize = '14px';
+                    gaugeLabel.style.color = 'var(--ubo-gray)';
+                    
+                    container.style.position = 'relative';
+                    container.appendChild(gaugeValue);
+                    container.appendChild(gaugeLabel);
+                    break;
+            }
+            
+            new Chart(canvas, config);
+        }
+        
+        // Refresh a widget
+        function refreshWidget(widgetId) {
+            const widget = document.getElementById(`widget-${widgetId}`);
+            if (widget) {
+                // Add loading animation
+                widget.classList.add('pulse');
+                
+                // Simulate refresh delay
+                setTimeout(() => {
+                    widget.classList.remove('pulse');
+                    
+                    // In a real app, we would fetch fresh data from the server
+                    // For this demo, we'll just recreate the widget
+                    const widgetConfig = roleWidgets[currentUser.role].find(w => w.id === widgetId);
+                    if (widgetConfig) {
+                        const newWidget = createWidget(widgetConfig);
+                        widget.parentNode.replaceChild(newWidget, widget);
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Open edit dashboard modal
+        function openEditDashboardModal() {
+            const editGrid = document.getElementById('editDashboardGrid');
+            editGrid.innerHTML = '';
+            
+            const widgets = roleWidgets[currentUser.role];
+            
+            widgets.forEach(widget => {
+                const widgetEl = document.createElement('div');
+                widgetEl.className = `widget widget-${widget.size}`;
+                
+                const header = document.createElement('div');
+                header.className = 'widget-header';
+                
+                const title = document.createElement('h3');
+                title.className = 'widget-title';
+                title.textContent = widget.title;
+                
+                const actions = document.createElement('div');
+                actions.className = 'widget-actions';
+                
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'widget-action';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.addEventListener('click', function() {
+                    this.querySelector('i').classList.toggle('fa-eye');
+                    this.querySelector('i').classList.toggle('fa-eye-slash');
+                });
+                
+                actions.appendChild(toggleBtn);
+                header.appendChild(title);
+                header.appendChild(actions);
+                widgetEl.appendChild(header);
+                
+                editGrid.appendChild(widgetEl);
+            });
+            
+            // Initialize Sortable for editing
+            new Sortable(editGrid, {
+                animation: 150,
+                ghostClass: 'dragging',
+                handle: '.widget-header'
+            });
+            
+            document.getElementById('editDashboardModal').classList.add('show');
+        }
+    </script>
+</body>
+</html>
