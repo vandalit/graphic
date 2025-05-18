@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Checklist Documentos de Venta – Vstone Propiedades</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-NEXwE1x8PckC5aCPpecqTriPI6Qz48QU8DVSdPzODh2EEZJ8mE6E693W3pT48sKhFddxdEopQ6IcI1pYrwRZKg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --primary: #1d3557; /* navy slate */
+      --accent: #e63946; /* coral */
+      --bg: #f1faee;     /* off‑white mint */
+      --text: #343a40;   /* dark gray */
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- HERO ---------- */
+    header {
+      height: 300px;
+      background: url("./assets/img/casa-preparada-venta.png") center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 0.6rem 1.4rem;
+      border-radius: 0.6rem;
+    }
+
+    /* ---------- CARD CONTAINER ---------- */
+    .container {
+      max-width: 900px;
+      margin: -120px auto 2rem;
+      background: #ffffff;
+      padding: 2rem 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: var(--primary);
+      margin: 2rem 0 1rem;
+      font-size: 1.45rem;
+    }
+
+    /* ---------- CHECKLIST GRID ---------- */
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .item {
+      background: var(--bg);
+      border-left: 6px solid var(--primary);
+      padding: 1rem 1rem 1rem 1.1rem;
+      border-radius: 0.75rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .item i {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-top: 0.25rem;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .item span {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--primary);
+    }
+
+    /* ---------- PRINT STYLES ---------- */
+    @media print {
+      header { display: none; }
+      body { background: #fff; }
+      .container { margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Checklist Documentos de Venta</h1>
+  </header>
+
+  <main class="container">
+    <p>Reúne y mantén al día los siguientes documentos para asegurar una compraventa fluida y sin contratiempos legales.</p>
+
+    <!-- SECCIÓN 1 – TÍTULOS Y DOMINIO -->
+    <h2>1. Títulos y Dominio</h2>
+    <div class="checklist">
+      <div class="item"><i class="fa-solid fa-file-signature"></i><div><span>Escritura Pública</span>Copia autorizada inscrita en el CBR.</div></div>
+      <div class="item"><i class="fa-solid fa-certificate"></i><div><span>Certificado de Dominio Vigente</span>Emitido por el CBR (vigencia ≤ 30 días).</div></div>
+      <div class="item"><i class="fa-solid fa-shield-halved"></i><div><span>Certificado de Hipotecas y Gravámenes</span>Detalle de cargas o prohibiciones.</div></div>
+      <div class="item"><i class="fa-solid fa-ban"></i><div><span>Certificado de Interdicciones</span>Verifica restricciones judiciales.</div></div>
+    </div>
+
+    <!-- SECCIÓN 2 – TRIBUTARIO & FINANCIERO -->
+    <h2>2. Situación Tributaria y Financiera</h2>
+    <div class="checklist">
+      <div class="item"><i class="fa-solid fa-receipt"></i><div><span>Contribuciones al Día</span>Últimos 4 trimestres pagados.</div></div>
+      <div class="item"><i class="fa-solid fa-chart-line"></i><div><span>Avalúo Fiscal</span>Certificado emitido por el SII.</div></div>
+      <div class="item"><i class="fa-solid fa-money-check-dollar"></i><div><span>Cartola Hipotecaria</span>Saldo al día del crédito (si aplica).</div></div>
+    </div>
+
+    <!-- SECCIÓN 3 – PERMISOS Y TÉCNICOS -->
+    <h2>3. Permisos y Aspectos Técnicos</h2>
+    <div class="checklist">
+      <div class="item"><i class="fa-solid fa-house-flag"></i><div><span>Permiso de Edificación</span>y Recepción Final (DOM).</div></div>
+      <div class="item"><i class="fa-solid fa-draw-polygon"></i><div><span>Planos Aprobados</span>Copias timbradas por el DOM.</div></div>
+      <div class="item"><i class="fa-solid fa-building-circle-check"></i><div><span>Regularización Ley 20.898</span>En caso de ampliaciones.</div></div>
+    </div>
+
+    <!-- SECCIÓN 4 – COMUNIDAD -->
+    <h2>4. Comunidad y Administración</h2>
+    <div class="checklist">
+      <div class="item"><i class="fa-solid fa-people-roof"></i><div><span>Gastos Comunes al Día</span>Últimos 3 meses cancelados.</div></div>
+      <div class="item"><i class="fa-solid fa-scroll"></i><div><span>Reglamento de Copropiedad</span>Original o copia fiel.</div></div>
+    </div>
+
+    <!-- SECCIÓN 5 – IDENTIFICACIÓN -->
+    <h2>5. Identificación y Poderes</h2>
+    <div class="checklist">
+      <div class="item"><i class="fa-solid fa-id-card"></i><div><span>Cédula de Identidad</span>Propietario(s) vigente(s).</div></div>
+      <div class="item"><i class="fa-solid fa-ring"></i><div><span>Certificado de Matrimonio</span>Indica régimen patrimonial.</div></div>
+      <div class="item"><i class="fa-solid fa-file-signature"></i><div><span>Poder Notarial</span>Si un apoderado firma la venta.</div></div>
+    </div>
+
+    <footer>© 2025 Vstone Propiedades · Uso informativo.</footer>
+  </main>
+</body>
+</html>
