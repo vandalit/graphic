@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Carrusel Nacional – demo accesibilidad (v3, multi‑proxy fallback)</title>
+  <style>
+    :root {
+      --card-width: 220px;
+      --card-height: 340px;
+      --gap: .75rem;
+      --radius: .75rem;
+      --bg-body: #f5f5f5;
+      --bg-section: #eeeeee;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg-body); color: #212121; }
+    h2 { margin: 0; padding: 1rem; font-size: 1.2rem; background: var(--bg-section); }
+    #carousel { overflow-x: auto; display: flex; gap: var(--gap); scroll-snap-type: x mandatory; padding: 1rem; -webkit-overflow-scrolling: touch; }
+    .card { flex: 0 0 var(--card-width); height: var(--card-height); background: #fff; border-radius: var(--radius); box-shadow: 0 2px 6px rgba(0,0,0,.08); scroll-snap-align: start; text-decoration: none; color: inherit; display: flex; flex-direction: column; }
+    .card img { width: 100%; height: 140px; object-fit: cover; border-radius: var(--radius) var(--radius) 0 0; }
+    .card-content { flex: 1; padding: .75rem; display: flex; flex-direction: column; }
+    .card-content h3 { font-size: .95rem; margin: 0 0 .5rem 0; line-height: 1.25; }
+    .time { font-size: .75rem; color: #555; margin-top: auto; }
+    .msg { padding: 1rem; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <h2>Nacional</h2>
+  <div id="carousel" aria-label="Carrusel de noticias Nacional"></div>
+
+  <script>
+    /**
+     * DEMO v3 – Intenta varios proxies públicos para sortear CORS.
+     *  1º thingproxy.freeboard.io (popular y liviano)
+     *  2º cors.isomorphic-git.org (fallback)
+     *  3º allorigins.win/raw (último recurso)
+     *  Si todos fallan => se sugiere backend proxy propio.
+     */
+
+    const WP_API = "https://www.biobiochile.cl/wp-json/wp/v2";
+    const PROXIES = [
+      url => `https://thingproxy.freeboard.io/fetch/${url}`,
+      url => `https://cors.isomorphic-git.org/${url}`,
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+    ];
+
+    async function fetchViaProxies(url) {
+      for (const wrap of PROXIES) {
+        try {
+          const r = await fetch(wrap(url));
+          if (!r.ok) throw new Error(r.status);
+          return await r.json();
+        } catch (e) {
+          console.warn("Proxy falló:", wrap(url), e.message);
+        }
+      }
+      throw new Error("Todos los proxies fallaron");
+    }
+
+    (async () => {
+      const carousel = document.getElementById("carousel");
+      try {
+        // 1) Encontrar ID de la categoría "nacional"
+        const catArr = await fetchViaProxies(`${WP_API}/categories?slug=nacional`);
+        const catId = catArr[0]?.id;
+        if (!catId) throw new Error("Categoría no encontrada");
+
+        // 2) Últimos 10 posts con media embebida
+        const posts = await fetchViaProxies(`${WP_API}/posts?categories=${catId}&per_page=10&_embed`);
+
+        posts.forEach(post => {
+          const title = post.title.rendered;
+          const link  = post.link;
+          const date  = new Date(post.date).toLocaleString("es-CL", {
+            day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
+          const media = post._embedded?.["wp:featuredmedia"]?.[0];
+          const img   = media?.media_details?.sizes?.medium?.source_url || media?.source_url || "";
+
+          const a = document.createElement("a");
+          a.href = link; a.target = "_blank"; a.className = "card";
+          a.innerHTML = `${ img ? `<img src="${img}" alt="" loading="lazy" decoding="async">` : "" }
+            <div class="card-content"><h3>${title}</h3><p class="time">${date}</p></div>`;
+          carousel.appendChild(a);
+        });
+      } catch (e) {
+        console.error(e);
+        carousel.innerHTML = `<p class="msg">⚠️ No se pudo cargar el contenido (CORS/proxy). Necesitas un proxy propio o backend.</p>`;
+      }
+    })();
+  </script>
+</body>
+</html>

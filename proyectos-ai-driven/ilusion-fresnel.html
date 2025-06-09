@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Efecto Foil con Giroscopio</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+      color: #eee;
+      flex-direction: column;
+      font-family: sans-serif;
+    }
+
+    #foil {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(45deg, #f00, #0f0, #00f);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      transform-style: preserve-3d;
+      transition: box-shadow 0.3s;
+    }
+
+    #mensaje {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    #btnPerm {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="foil"></div>
+  <div id="mensaje">Inclina tu dispositivo para ver el efecto foil.</div>
+  <button id="btnPerm" style="display:none;">Activar giroscopio 📱</button>
+
+  <script>
+    const foil = document.getElementById('foil');
+    const mensaje = document.getElementById('mensaje');
+    const btn = document.getElementById('btnPerm');
+    let timeout;
+
+    function iniciar() {
+      if (window.DeviceOrientationEvent) {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          btn.style.display = 'block';
+          btn.addEventListener('click', solicitarPermiso);
+        } else {
+          activarListener();
+        }
+      } else {
+        mensaje.textContent = 'Tu navegador no soporta orientación.';
+      }
+    }
+
+    function solicitarPermiso() {
+      DeviceOrientationEvent.requestPermission()
+        .then(res => {
+          if (res === 'granted') {
+            btn.style.display = 'none';
+            activarListener();
+          } else {
+            mensaje.textContent = 'Permiso denegado. No se puede aplicar el efecto.';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          mensaje.textContent = 'Error al solicitar permiso.';
+        });
+    }
+
+    function activarListener() {
+      window.addEventListener('deviceorientation', onOrient);
+      timeout = setTimeout(() => {
+        mensaje.innerHTML = 'No se detecta movimiento.<br>Comprueba permisos o configura permisos en ajustes del navegador.';
+      }, 3000);
+    }
+
+    function onOrient(ev) {
+      clearTimeout(timeout);
+      const beta = ev.beta || 0;
+      const gamma = ev.gamma || 0;
+      mensaje.textContent = `β: ${beta.toFixed(1)}° · γ: ${gamma.toFixed(1)}°`;
+      const rotX = (beta / 90) * 15;
+      const rotY = (gamma / 90) * 15;
+      foil.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      const leka = Math.abs(rotX) + Math.abs(rotY);
+      foil.style.boxShadow = `0 0 ${20 + leka}px rgba(255,255,255,${0.1 + leka / 60})`;
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>

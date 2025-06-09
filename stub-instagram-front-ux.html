@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini-Feed Instagram-like</title>
+
+  <!-- Font Awesome 6.7 Free CDN -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-yc1x6JZ+..."
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+  <style>
+    :root{
+      --bg:#fafafa;
+      --card-bg:#fff;
+      --border:#dbdbdb;
+      --text:#262626;
+      --muted:#8e8e8e;
+      --action:#262626;
+      --radius:8px;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    body{margin:0;background:var(--bg);color:var(--text);}
+
+    /* ---------- NAVBAR ---------- */
+    .navbar{position:sticky;top:0;z-index:100;
+            background:#fff;border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:center;height:54px;}
+    .navbar .inner{width:935px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
+    .logo{font-size:1.5rem;font-weight:700;}
+    .search{position:relative;}
+    .search input{background:#efefef;border:none;border-radius:3px;padding:6px 28px 6px 8px;}
+    .search i{position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);}
+    .nav-icons i{font-size:1.3rem;margin-left:22px;cursor:pointer;}
+
+    /* ---------- STORIES ---------- */
+    .stories{display:flex;overflow-x:auto;gap:18px;padding:16px 0;border:1px solid var(--border);
+             border-radius:var(--radius);background:var(--card-bg);scroll-snap-type:x mandatory;}
+    .story{flex:0 0 auto;width:80px;text-align:center;scroll-snap-align:start;}
+    .story img{width:66px;height:66px;border-radius:50%;border:2px solid #c13584;}
+
+    /* ---------- FEED / POST CARD ---------- */
+    .feed{max-width:614px;margin:20px auto 40px;}
+    .post{border:1px solid var(--border);border-radius:var(--radius);background:var(--card-bg);margin-bottom:24px;}
+    /* header */
+    .post-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;}
+    .post-author{display:flex;align-items:center;gap:12px;}
+    .post-author img{width:32px;height:32px;border-radius:50%;}
+    .post-author span{font-weight:600;font-size:.9rem;}
+    /* media */
+    .post figure{margin:0;}
+    .post figure img{width:100%;display:block;object-fit:cover;max-height:700px;}
+    /* actions */
+    .post-actions{display:flex;justify-content:space-between;padding:8px 16px;font-size:1.4rem;}
+    .post-actions i{margin-right:16px;cursor:pointer;}
+    .post-actions i.fa-bookmark{margin-right:0;}
+    /* meta */
+    .likes{font-weight:600;padding:0 16px;font-size:.9rem;}
+    .caption{padding:4px 16px;font-size:.9rem;}
+    .caption span{font-weight:600;margin-right:6px;}
+    .comments-link{padding:0 16px;color:var(--muted);font-size:.85rem;cursor:pointer;}
+    .add-comment{display:flex;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--border);}
+    .add-comment input{flex:1;border:none;padding:6px 4px;background:none;font-size:.9rem;}
+    .add-comment input:focus{outline:none;}
+    .add-comment button{border:none;background:none;color:#0095f6;font-weight:600;cursor:pointer;}
+
+    /* ---------- UTILITIES ---------- */
+    .scrollbar-hide::-webkit-scrollbar{display:none;}
+    .scrollbar-hide{scrollbar-width:none;}
+
+    /* ---------- RESPONSIVE ---------- */
+    @media(max-width:700px){
+      .navbar .inner{width:100%;}
+      .feed{margin:0 auto;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="inner">
+      <div class="logo">MyGram</div>
+
+      <label class="search">
+        <input type="text" placeholder="Buscar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </label>
+
+      <div class="nav-icons">
+        <i class="fa-solid fa-house"></i>
+        <i class="fa-regular fa-paper-plane"></i>
+        <i class="fa-regular fa-compass"></i>
+        <i class="fa-regular fa-heart"></i>
+        <i class="fa-regular fa-user"></i>
+      </div>
+    </div>
+  </nav>
+
+  <!-- STORIES -->
+  <section class="feed">
+    <div class="stories scrollbar-hide">
+      <!-- 6 Story bubbles -->
+      <article class="story">
+        <img src="https://picsum.photos/seed/u1/88" alt="avatar">
+        <div style="font-size:.75rem;">usuario1</div>
+      </article>
+      <article class="story">
+        <img src="https://picsum.photos/seed/u2/88" alt="avatar">
+        <div style="font-size:.75rem;">usuario2</div>
+      </article>
+      <article class="story">
+        <img src="https://picsum.photos/seed/u3/88" alt="avatar">
+        <div style="font-size:.75rem;">usuario3</div>
+      </article>
+      <article class="story">
+        <img src="https://picsum.photos/seed/u4/88" alt="avatar">
+        <div style="font-size:.75rem;">usuario4</div>
+      </article>
+      <article class="story">
+        <img src="https://picsum.photos/seed/u5/88" alt="avatar">
+        <div style="font-size:.75rem;">usuario5</div>
+      </article>
+      <article class="story">
+        <img src="https://picsum.photos/seed/u6/88" alt="avatar">
+        <div style="font-size:.75rem;">usuario6</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- FEED POSTS -->
+  <section class="feed">
+
+    <!-- Post 1 -->
+    <article class="post">
+      <header class="post-header">
+        <div class="post-author">
+          <img src="https://picsum.photos/seed/da1/32" alt="avatar">
+          <span>louvre_official</span>
+        </div>
+        <i class="fa-solid fa-ellipsis"></i>
+      </header>
+
+      <figure>
+        <img loading="lazy"
+             src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Mona_Lisa.jpg"
+             alt="Mona Lisa - Leonardo da Vinci (Public Domain)">
+      </figure>
+
+      <div class="post-actions">
+        <div>
+          <i class="fa-regular fa-heart"></i>
+          <i class="fa-regular fa-comment"></i>
+          <i class="fa-regular fa-paper-plane"></i>
+        </div>
+        <i class="fa-regular fa-bookmark"></i>
+      </div>
+
+      <div class="likes">1 245 likes</div>
+      <div class="caption"><span>louvre_official</span> Descubre la sonrisa enigmática de la #MonaLisa.</div>
+      <div class="comments-link">Ver los 32 comentarios</div>
+
+      <form class="add-comment">
+        <input type="text" placeholder="Añade un comentario…">
+        <button type="submit">Publicar</button>
+      </form>
+    </article>
+
+    <!-- Post 2 (otra obra) -->
+    <article class="post">
+      <header class="post-header">
+        <div class="post-author">
+          <img src="https://picsum.photos/seed/da2/32" alt="avatar">
+          <span>vangogh_gallery</span>
+        </div>
+        <i class="fa-solid fa-ellipsis"></i>
+      </header>
+
+      <figure>
+        <img loading="lazy"
+             src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Starry_Night_Over_the_Rhone.jpg/1161px-Starry_Night_Over_the_Rhone.jpg?20170116094104"
+             alt="Starry Night Over the Rhône - Vincent van Gogh (Public Domain)">
+      </figure>
+
+      <div class="post-actions">
+        <div>
+          <i class="fa-regular fa-heart"></i>
+          <i class="fa-regular fa-comment"></i>
+          <i class="fa-regular fa-paper-plane"></i>
+        </div>
+        <i class="fa-regular fa-bookmark"></i>
+      </div>
+
+      <div class="likes">856 likes</div>
+      <div class="caption"><span>vangogh_gallery</span> Colores que iluminan la noche de Arlés.</div>
+      <div class="comments-link">Ver los 14 comentarios</div>
+
+      <form class="add-comment">
+        <input type="text" placeholder="Añade un comentario…">
+        <button type="submit">Publicar</button>
+      </form>
+    </article>
+
+  </section>
+
+</body>
+</html>
