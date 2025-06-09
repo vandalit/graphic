@@ -98,9 +98,9 @@
       const leka = Math.abs(rotX) + Math.abs(rotY);
       foil.style.boxShadow = `0 0 ${20 + leka}px rgba(255,255,255,${0.1 + leka / 60})`;
 
-      // Movimiento cromático simulado con desplazamiento de background
-      const posX = 50 + (gamma / 90) * 50;
-      const posY = 50 + (beta / 90) * 50;
+      // Movimiento cromático simulado con desplazamiento de background con mayor sensibilidad
+      const posX = 50 + (gamma / 90) * 75;
+      const posY = 50 + (beta / 90) * 75;
       foil.style.backgroundPosition = `${posX}% ${posY}%`;
     }
 
