@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline Web 2.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px 20px;
+    }
+
+    .timeline {
+      position: relative;
+      margin: 0 auto;
+      padding: 20px 0;
+      width: 90%;
+      max-width: 800px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: yellowgreen;
+    }
+
+    .event {
+      position: relative;
+      margin-left: 60px;
+      margin-bottom: 30px;
+    }
+
+    .event::before {
+      content: '';
+      position: absolute;
+      left: -36px;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: yellowgreen;
+      border: 2px solid #222;
+    }
+
+    .event h3 {
+      margin: 0 0 5px;
+      font-size: 18px;
+      color: yellowgreen;
+    }
+
+    .event p {
+      margin: 0;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .icon {
+      margin-right: 8px;
+      color: yellowgreen;
+    }
+  </style>
+</head>
+<body>
+  <h1>📲 Línea de Tiempo – Web 2.0</h1>
+  <div class="timeline">
+    <div class="event">
+      <h3><i class="fas fa-globe icon"></i> 2001 – Wikipedia</h3>
+      <p>El conocimiento se vuelve colaborativo y abierto con edición comunitaria.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-users icon"></i> 2003-2004 – Redes sociales: MySpace, Facebook</h3>
+      <p>Surge la web social: creación de perfiles, vínculos y contenido entre usuarios.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-camera icon"></i> 2004 – Flickr & blogging con WordPress</h3>
+      <p>Los usuarios comienzan a compartir imágenes y crear sitios sin saber programar.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-bolt icon"></i> 2005 – AJAX & Gmail/Google Maps</h3>
+      <p>Las web apps se vuelven rápidas, interactivas y similares al software de escritorio.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-video icon"></i> 2005 – YouTube</h3>
+      <p>Revolución audiovisual: cualquiera puede subir, compartir y viralizar video.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-feather-alt icon"></i> 2006 – Twitter</h3>
+      <p>Microblogging y comunicación en tiempo real transforman el flujo informativo.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-mobile icon"></i> 2007 – iPhone</h3>
+      <p>Nace la era del smartphone moderno; Internet se vuelve ubicua y siempre disponible.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-signal icon"></i> 2007 – Red 3G</h3>
+      <p>Acceso a Internet móvil más veloz; se habilitan apps ricas y geolocalización.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-music icon"></i> 2008 – Spotify</h3>
+      <p>La música deja de comprarse para ser accedida por streaming desde la nube.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-film icon"></i> 2008 – Netflix lanza su plataforma de streaming</h3>
+      <p>Del DVD al video bajo demanda: modelo de suscripción cambia la industria audiovisual.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-car icon"></i> 2009 – Uber & economía colaborativa</h3>
+      <p>Las plataformas digitales se integran al mundo físico: transporte, alojamiento, pagos.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-comment-dots icon"></i> 2009 – WhatsApp</h3>
+      <p>Transforma la mensajería instantánea móvil con número telefónico como identificador.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-skull icon"></i> 2010 – Quiebra de Blockbuster</h3>
+      <p>Declive del alquiler físico: cierra tras no adaptarse al streaming y lo digital.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-play icon"></i> 2010 – Streaming como tendencia global</h3>
+      <p>El video bajo demanda se masifica; YouTube, Netflix y otros lideran el consumo digital.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-camera-retro icon"></i> 2010 – Instagram</h3>
+      <p>Contenido visual y social 100% móvil; nacen los influenciadores digitales.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-network-wired icon"></i> 2012 – Red 4G</h3>
+      <p>Velocidades más altas y menor latencia; mejora drástica en video y navegación móvil.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-wifi icon"></i> 2011-2015 – Consolidación del acceso móvil</h3>
+      <p>Los smartphones superan a las PCs como principal forma de navegar la web.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-video icon"></i> 2016 – TikTok</h3>
+      <p>Plataforma de videos cortos con edición integrada y viralización algorítmica.</p>
+    </div>
+  </div>
+</body>
+</html>

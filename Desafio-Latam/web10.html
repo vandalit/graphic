@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline Web 1.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px 20px;
+    }
+
+    .timeline {
+      position: relative;
+      margin: 0 auto;
+      padding: 20px 0;
+      width: 90%;
+      max-width: 800px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: yellowgreen;
+    }
+
+    .event {
+      position: relative;
+      margin-left: 60px;
+      margin-bottom: 30px;
+    }
+
+    .event::before {
+      content: '';
+      position: absolute;
+      left: -36px;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: yellowgreen;
+      border: 2px solid #222;
+    }
+
+    .event h3 {
+      margin: 0 0 5px;
+      font-size: 18px;
+      color: yellowgreen;
+    }
+
+    .event p {
+      margin: 0;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .icon {
+      margin-right: 8px;
+      color: yellowgreen;
+    }
+  </style>
+</head>
+<body>
+  <h1>📜 Línea de Tiempo – Web 1.0</h1>
+  <div class="timeline">
+    <div class="event">
+      <h3><i class="fas fa-desktop icon"></i> 1981 – IBM PC</h3>
+      <p>Lanzamiento de la primera computadora personal ampliamente adoptada para el hogar.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-code icon"></i> 1990 – Nace la World Wide Web</h3>
+      <p>Tim Berners-Lee propone la web y crea HTML, HTTP y URL.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-brush icon"></i> 1996 – Aparición de CSS</h3>
+      <p>CSS permite separar estructura (HTML) de estilo en el diseño web.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-browser icon"></i> 1993 – Mosaic: Primer navegador gráfico</h3>
+      <p>Permite ver imágenes dentro de las páginas web.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-building icon"></i> 1994 – Fundación de Netscape & Yahoo!</h3>
+      <p>La web se comercializa; comienzan los primeros portales.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-code icon"></i> 1995 – JavaScript, PHP y Apache</h3>
+      <p>La web se vuelve dinámica y programable.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-shopping-cart icon"></i> 1995 – Amazon & eBay</h3>
+      <p>Comienzan las primeras ventas en línea.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-globe-americas icon"></i> 1996 – StarMedia</h3>
+      <p>Primer portal latinoamericano, marca la entrada de LATAM a la web.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-plug icon"></i> 1990s – Internet por módem</h3>
+      <p>Conexión a Internet a través de líneas telefónicas con velocidades de 28-56 kbps.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-search icon"></i> 1998 – Fundación de Google</h3>
+      <p>Mejora radical en cómo buscamos información en la web.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-music icon"></i> 1999 – Napster y la revolución musical</h3>
+      <p>Contenido compartido por usuarios: el inicio del P2P masivo.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-signal icon"></i> 2000s – Llegada de la banda ancha</h3>
+      <p>Se masifica el acceso a Internet por cable y ADSL; velocidades superan los 512 kbps.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-chart-line icon"></i> 2000 – Burbuja Puntocom</h3>
+      <p>Colapso de miles de startups web; sobreviven Amazon, eBay, etc.</p>
+    </div>
+
+    <div class="event">
+      <h3><i class="fas fa-user-edit icon"></i> 2001 – Wikipedia</h3>
+      <p>Comienza la colaboración abierta como modelo de creación de contenido.</p>
+    </div>
+  </div>
+</body>
+</html>
