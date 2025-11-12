@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Ciberseguridad y Proyectos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px;
+    }
+    .content {
+      width: 48%;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    select {
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    h3 {
+      text-align: center;
+    }
+    .chart {
+      width: 100%;
+      height: 300px;
+      background-color: #e1e1e1;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dashboard - Ciberseguridad y Proyectos</h1>
+  </header>
+
+  <div class="container">
+    <div class="content">
+      <h3>Ciberseguridad</h3>
+      <select id="areaSelect" onchange="changeArea()">
+        <option value="ciberseguridad">Ciberseguridad</option>
+        <option value="proyectos">Proyectos</option>
+      </select>
+      <div id="ciberseguridadData" style="display:block;">
+        <h4>Métricas de Ciberseguridad</h4>
+        <div class="chart" id="ciberseguridadChart">Métricas Power BI (mock)</div>
+        <p>Mock de métricas de Power BI (Ejemplo: Ataques detectados, Vulnerabilidades críticas, etc.)</p>
+      </div>
+      <div id="proyectosData" style="display:none;">
+        <h4>Vista de Proyecto</h4>
+        <div class="chart" id="proyectosChart">Gráficos de Proyectos (mock)</div>
+        <p>Mock de vista de proyectos (Ejemplo: Proyectos en progreso, Tareas completadas, etc.)</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <h3>Detalles</h3>
+      <p>Elige una opción en el menú desplegable para ver más detalles de Ciberseguridad o Proyectos.</p>
+    </div>
+  </div>
+
+  <script>
+    function changeArea() {
+      const area = document.getElementById('areaSelect').value;
+      if (area === 'ciberseguridad') {
+        document.getElementById('ciberseguridadData').style.display = 'block';
+        document.getElementById('proyectosData').style.display = 'none';
+      } else {
+        document.getElementById('ciberseguridadData').style.display = 'none';
+        document.getElementById('proyectosData').style.display = 'block';
+      }
+    }
+  </script>
+  
+</body>
+</html>

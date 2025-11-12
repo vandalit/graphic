@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GG Café — Juegos & E‑commerce</title>
+  <meta name="description" content="Cafetería gamer con juegos de mesa, rol, TCG y merchandising. Compra en línea y retira en tienda." />
+  <link rel="preconnect" href="https://placehold.co" />
+  <style>
+    :root{
+      --bg:#0c0f14;/* negro azulado */
+      --bg-2:#11151d;
+      --panel:#161b22;
+      --ink:#e8edf7;
+      --muted:#9aa4b2;
+      --brand:#7c5cff;/* violeta gamer */
+      --accent:#00e5ff;/* cian neón */
+      --ok:#2ecc71;
+      --warn:#ffb703;
+      --danger:#ff4757;
+      --radius:18px;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      color:var(--ink);background:linear-gradient(180deg,var(--bg),var(--bg-2));
+    }
+    a{color:inherit;text-decoration:none}
+    img{display:block;max-width:100%;border-radius:12px}
+
+    /* Layout */
+    .container{width:min(1200px,92vw);margin-inline:auto}
+    header.nav{
+      position:sticky;top:0;z-index:50;background:rgba(12,15,20,.8);backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .nav-inner{display:flex;align-items:center;gap:14px;padding:12px 0}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+    .brand .logo{width:36px;height:36px;border-radius:10px;
+      background:linear-gradient(135deg,var(--brand),var(--accent));
+      box-shadow:0 6px 20px rgba(124,92,255,.4);
+      display:grid;place-items:center;font-weight:900;color:#0b0e13}
+    .nav-search{flex:1;display:flex;gap:10px}
+    .input, select{
+      background:var(--panel);border:1px solid rgba(255,255,255,.08);color:var(--ink);
+      padding:12px 14px;border-radius:12px;outline:none;width:100%;
+    }
+    .btn{
+      background:var(--brand);border:none;color:white;padding:12px 16px;border-radius:12px;font-weight:700;
+      box-shadow:0 8px 20px rgba(124,92,255,.35);cursor:pointer;transition:transform .05s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .icon-btn{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--panel);border:1px solid rgba(255,255,255,.08);cursor:pointer}
+    .cart-indicator{position:relative}
+    .cart-count{position:absolute;top:-6px;right:-6px;background:var(--accent);color:#001018;border-radius:999px;font-size:.75rem;padding:2px 6px;font-weight:800;border:2px solid var(--bg)}
+
+    .hero{padding:28px 0 6px}
+    .hero-wrap{display:grid;grid-template-columns:1.3fr .7fr;gap:18px}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-main{padding:22px;display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
+    .hero-copy{display:grid;gap:12px;align-content:center}
+    .kicker{color:var(--accent);font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:.75rem}
+    .h1{font-size:clamp(26px,3.5vw,42px);line-height:1.05;margin:0}
+    .hero-copy p{color:var(--muted);margin:0}
+    .hero-side{display:grid;gap:12px;padding:22px}
+    .chip{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;background:#0e131a;border:1px solid rgba(255,255,255,.06);border-radius:999px;color:var(--muted);font-size:.9rem}
+
+    /* Pills */
+    .pills{display:flex;flex-wrap:wrap;gap:8px}
+    .pill{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.08);cursor:pointer;background:#0f141c;color:var(--muted)}
+    .pill.active{background:linear-gradient(135deg,rgba(124,92,255,.25),rgba(0,229,255,.2));color:var(--ink);border-color:transparent;box-shadow:0 4px 18px rgba(0,229,255,.18)}
+
+    /* Grid */
+    .section{padding:22px 0}
+    .section h2{margin:0 0 14px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .product{display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding:12px}
+    .product h3{margin:0;font-size:1rem}
+    .price{display:flex;gap:8px;align-items:center}
+    .price del{color:var(--muted);font-size:.9rem}
+    .badge{font-size:.75rem;color:#001018;background:var(--accent);border-radius:6px;padding:4px 8px;font-weight:800}
+    .tags{display:flex;gap:6px;flex-wrap:wrap}
+    .tag{font-size:.7rem;color:var(--muted);background:#0d1219;border:1px dashed rgba(255,255,255,.06);padding:4px 8px;border-radius:6px}
+
+    /* Cart drawer */
+    .drawer{position:fixed;inset:0 0 0 auto;width:min(420px,92vw);background:var(--panel);border-left:1px solid rgba(255,255,255,.08);display:grid;grid-template-rows:auto 1fr auto;transform:translateX(110%);transition:transform .25s ease;z-index:100}
+    .drawer.open{transform:none}
+    .drawer header,.drawer footer{padding:16px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .drawer footer{border-bottom:none;border-top:1px solid rgba(255,255,255,.06)}
+    .cart-list{overflow:auto;padding:12px}
+    .cart-item{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:10px;background:#0f141b}
+    .qty{display:inline-flex;gap:8px;align-items:center}
+    .qty button{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:#0e131a;color:var(--ink);cursor:pointer}
+
+    .totals{display:grid;gap:8px}
+    .totals div{display:flex;justify-content:space-between;color:var(--muted)}
+    .totals .grand{color:var(--ink);font-weight:800}
+
+    /* Modal */
+    dialog{border:none;border-radius:16px;background:var(--panel);color:var(--ink);width:min(860px,92vw)}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+    .modal{display:grid;grid-template-columns:1fr 1.1fr;gap:16px}
+    .modal .meta{display:grid;gap:10px}
+
+    /* Footer */
+    footer.site{padding:40px 0;color:var(--muted)}
+    .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:14px}
+    .social{display:flex;gap:8px}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero-wrap{grid-template-columns:1fr}
+      .hero-main{grid-template-columns:1fr}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .cols{grid-template-columns:1fr 1fr}
+      .modal{grid-template-columns:1fr}
+    }
+    @media (max-width: 560px){
+      .grid{grid-template-columns:1fr}
+      .nav-search{flex-wrap:wrap}
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#">
+        <span class="logo">GG</span>
+        <span>GG Café</span>
+      </a>
+      <div class="nav-search">
+        <input id="q" class="input" type="search" placeholder="Buscar (juegos, rol, cartas, café, merch)" />
+        <select id="sort" aria-label="Ordenar">
+          <option value="featured">Destacados</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name-asc">Nombre A–Z</option>
+        </select>
+        <button id="clearFilters" class="btn" title="Limpiar filtros">Limpiar</button>
+      </div>
+      <button id="openCart" class="icon-btn cart-indicator" aria-label="Abrir carrito">
+        🛒<span id="cartCount" class="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-wrap">
+      <div class="card hero-main">
+        <div class="hero-copy">
+          <span class="kicker">Cafetería temática gamer</span>
+          <h1 class="h1">Juega, toma café y lleva tu loot a casa ☕🎲</h1>
+          <p>Board games, TCG, rol y merchandising oficial. Compra online y retira en tienda o pide a domicilio.</p>
+          <div class="pills" id="categoryPills"></div>
+        </div>
+        <picture>
+          <img alt="Banner" src="https://placehold.co/800x520/png?text=GG+Caf%C3%A9+Hero" />
+        </picture>
+      </div>
+      <aside class="card hero-side">
+        <div class="chip">⏰ Hoy 10:00–23:30</div>
+        <div class="chip">📍 Providencia, Santiago</div>
+        <div class="chip">🎮 Mesas con catálogo + ludoteca</div>
+        <div class="chip">💳 Webpay / Transbank / Transferencia</div>
+        <div class="chip">🚚 Envíos RM 24–48h</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- LISTING -->
+  <section class="section container">
+    <h2>Productos</h2>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- CART DRAWER -->
+  <aside id="drawer" class="drawer" aria-hidden="true">
+    <header class="container" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <strong>Tu carrito</strong>
+      <button id="closeCart" class="icon-btn" aria-label="Cerrar">✖️</button>
+    </header>
+    <div class="cart-list" id="cartList"></div>
+    <footer class="container">
+      <div class="totals">
+        <div><span>Subtotal</span><span id="subtotal">$0</span></div>
+        <div><span>Envío (estimado)</span><span id="shipping">$3.990</span></div>
+        <div class="grand"><span>Total</span><span id="grand">$0</span></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button id="checkout" class="btn" style="flex:1">Finalizar compra</button>
+        <button id="empty" class="icon-btn" title="Vaciar carrito">🗑️</button>
+      </div>
+      <p style="color:var(--muted);margin:.6rem 0 0">Demo: pago simulado, sin pasarela.</p>
+    </footer>
+  </aside>
+
+  <!-- PRODUCT MODAL -->
+  <dialog id="productModal">
+    <div class="modal">
+      <div class="media"><img id="mImg" alt="Producto" src="" /></div>
+      <div class="meta">
+        <h3 id="mName" style="margin:0"></h3>
+        <div class="tags" id="mTags"></div>
+        <p id="mDesc" style="color:var(--muted)"></p>
+        <div class="price" id="mPrice"></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <label for="mQty">Cantidad</label>
+          <input id="mQty" type="number" min="1" value="1" class="input" style="width:90px" />
+          <button id="mAdd" class="btn">Añadir al carrito</button>
+        </div>
+        <button id="mClose" class="icon-btn" style="width:auto;padding:8px 12px">Cerrar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- FOOTER -->
+  <footer class="site">
+    <div class="container cols">
+      <div>
+        <div class="brand" style="margin-bottom:8px"><span class="logo">GG</span><span>GG Café</span></div>
+        <p>Somos una cafetería gamer con espacio para jugar TCG, rol y board games. Talleres y eventos semanales.</p>
+        <div class="social"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">X</a></div>
+      </div>
+      <div>
+        <strong>Atención</strong>
+        <p>L–V 10:00–23:30<br>S–D 11:00–00:30</p>
+      </div>
+      <div>
+        <strong>Contacto</strong>
+        <p>+56 9 1234 5678<br>hola@ggcafe.cl</p>
+      </div>
+      <div>
+        <strong>Políticas</strong>
+        <p>Envíos RM 24–48h<br>Cambios 10 días<br>Retiro en tienda</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  // ---------- UTILIDADES ----------
+  const $ = (sel,scope=document)=>scope.querySelector(sel);
+  const $$ = (sel,scope=document)=>Array.from(scope.querySelectorAll(sel));
+  const CLP = n => n.toLocaleString('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
+
+  // ---------- MOCK DATA ----------
+  const CATEGORIES = [
+    {id:'todos', name:'Todos'},
+    {id:'board', name:'Juegos de Mesa'},
+    {id:'tcg', name:'Cartas / TCG'},
+    {id:'rpg', name:'Rol'},
+    {id:'merch', name:'Merch'},
+    {id:'cafe', name:'Café & Snacks'}
+  ];
+
+  const PRODUCTS = [
+    // Board games
+    {id:'catan', name:'Catan (Español)', cat:'board', price:42990, compare:49990, img:'https://placehold.co/640x480/png?text=Catan', tags:['3–4 jugadores','60–90 min'], desc:'Clásico de negociación y estrategia. Versión en español.'},
+    {id:'azul', name:'Azul', cat:'board', price:34990, img:'https://placehold.co/640x480/png?text=Azul', tags:['2–4 jugadores','30–45 min'], desc:'Abstracto premiado, hermoso y táctico.'},
+    {id:'terraforming', name:'Terraforming Mars', cat:'board', price:64990, compare:69990, img:'https://placehold.co/640x480/png?text=Terraforming+Mars', tags:['1–5 jugadores','120 min'], desc:'Corporaciones compiten por terraformar Marte.'},
+    {id:'dixit', name:'Dixit Odyssey', cat:'board', price:29990, img:'https://placehold.co/640x480/png?text=Dixit', tags:['3–12 jugadores','30 min'], desc:'Creatividad y pistas visuales para toda la mesa.'},
+    // TCG
+    {id:'mtg-starter', name:'Magic: Starter Kit 2025', cat:'tcg', price:25990, img:'https://placehold.co/640x480/png?text=MTG+Starter', tags:['2 mazos','Listo para jugar'], desc:'Dos mazos listos para iniciar en MTG.'},
+    {id:'pkm-booster', name:'Pokémon – Booster XX', cat:'tcg', price:6990, img:'https://placehold.co/640x480/png?text=Pok%C3%A9mon+Booster', tags:['1 sobre','10 cartas'], desc:'Sobre al azar de la expansión XX.'},
+    {id:'yu-structure', name:'Yu‑Gi‑Oh! Structure Deck', cat:'tcg', price:17990, img:'https://placehold.co/640x480/png?text=YGO+Deck', tags:['Listo para jugar'], desc:'Mazo temático competitivo.'},
+    // RPG
+    {id:'dnd-phb', name:'D&D Manual del Jugador', cat:'rpg', price:45990, img:'https://placehold.co/640x480/png?text=D%26D+PHB', tags:['5e','Libro básico'], desc:'Reglas esenciales para crear personajes y jugar.'},
+    {id:'dnd-dice', name:'Set de Dados Metálicos', cat:'rpg', price:14990, img:'https://placehold.co/640x480/png?text=Metal+Dice', tags:['7 dados','Bolsa incluida'], desc:'Set metálico premium para RPG.'},
+    // Merch
+    {id:'mario-mug', name:'Tazón Super Mario', cat:'merch', price:8990, img:'https://placehold.co/640x480/png?text=Mario+Mug', tags:['Cerámica','330ml'], desc:'Tazón temático para café y raids nocturnas.'},
+    {id:'zelda-shirt', name:'Polera Zelda Triforce', cat:'merch', price:15990, img:'https://placehold.co/640x480/png?text=Zelda+Tee', tags:['Algodón','Tallas S–XL'], desc:'Polera negra con símbolo Triforce.'},
+    // Café & Snacks
+    {id:'latte', name:'Latte 12oz', cat:'cafe', price:2900, img:'https://placehold.co/640x480/png?text=Latte', tags:['Espresso','Leche vaporizada'], desc:'Cremoso y balanceado.'},
+    {id:'frappe', name:'Frappé Choco', cat:'cafe', price:3900, img:'https://placehold.co/640x480/png?text=Frappe', tags:['Helado','Chocolate'], desc:'Dulce y fresco para largas partidas.'},
+    {id:'brownie', name:'Brownie + Nutella', cat:'cafe', price:2900, img:'https://placehold.co/640x480/png?text=Brownie', tags:['Veggie','Horneado diario'], desc:'Crocante por fuera, fudgy por dentro.'},
+  ];
+
+  // ---------- ESTADO ----------
+  const state = {
+    category: 'todos',
+    search: '',
+    sort: 'featured',
+    cart: JSON.parse(localStorage.getItem('ggcart')||'[]')
+  };
+
+  const persist = ()=>localStorage.setItem('ggcart', JSON.stringify(state.cart));
+
+  // ---------- RENDER ----------
+  function renderCategories(){
+    const wrap = $('#categoryPills');
+    wrap.innerHTML = '';
+    CATEGORIES.forEach(c=>{
+      const el = document.createElement('button');
+      el.className = 'pill'+(state.category===c.id?' active':'');
+      el.textContent = c.name;
+      el.onclick = ()=>{ state.category=c.id; draw(); };
+      wrap.appendChild(el);
+    })
+  }
+
+  function filtered(){
+    let items = PRODUCTS.filter(p=> state.category==='todos' ? true : p.cat===state.category);
+    if(state.search){
+      const q = state.search.toLowerCase();
+      items = items.filter(p=> [p.name,p.desc,(p.tags||[]).join(' ')].join(' ').toLowerCase().includes(q));
+    }
+    switch(state.sort){
+      case 'price-asc': items.sort((a,b)=>a.price-b.price); break;
+      case 'price-desc': items.sort((a,b)=>b.price-a.price); break;
+      case 'name-asc': items.sort((a,b)=>a.name.localeCompare(b.name)); break;
+      default: /* featured: simple mezcla */ items.sort((a,b)=> a.compare? -1 : 1);
+    }
+    return items;
+  }
+
+  function renderGrid(){
+    const grid = $('#grid');
+    grid.innerHTML = '';
+    filtered().forEach(p=>{
+      const card = document.createElement('article');
+      card.className = 'card product';
+      card.innerHTML = `
+        <picture><img alt="${p.name}" src="${p.img}"/></picture>
+        <div>
+          <h3>${p.name}</h3>
+          <div class="tags">${(p.tags||[]).map(t=>`<span class='tag'>${t}</span>`).join('')}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div class="price">${p.compare?`<del>${CLP(p.compare)}</del>`:''}<strong>${CLP(p.price)}</strong></div>
+          <div style="display:flex;gap:8px">
+            ${p.compare?`<span class="badge">Oferta</span>`:''}
+            <button class="btn" data-id="${p.id}">Añadir</button>
+            <button class="icon-btn" title="Ver" data-view="${p.id}">👁️</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    })
+
+    // listeners
+    $$('button[data-id]').forEach(b=> b.onclick = ()=> addToCart(b.dataset.id,1));
+    $$('button[data-view]').forEach(b=> b.onclick = ()=> openModal(b.dataset.view));
+  }
+
+  function draw(){
+    renderCategories();
+    renderGrid();
+    updateCartBadge();
+  }
+
+  // ---------- MODAL ----------
+  const modal = $('#productModal');
+  function openModal(id){
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p) return;
+    $('#mImg').src = p.img; $('#mName').textContent = p.name; $('#mDesc').textContent = p.desc;
+    $('#mTags').innerHTML = (p.tags||[]).map(t=>`<span class='tag'>${t}</span>`).join('');
+    $('#mPrice').innerHTML = `${p.compare?`<del>${CLP(p.compare)}</del>`:''}<strong style='margin-left:8px'>${CLP(p.price)}</strong>`;
+    $('#mQty').value = 1; $('#mAdd').onclick = ()=>{ addToCart(p.id, parseInt($('#mQty').value||'1')); modal.close(); };
+    modal.showModal();
+  }
+  $('#mClose').onclick = ()=> modal.close();
+
+  // ---------- CARRITO ----------
+  function addToCart(id,qty=1){
+    const p = PRODUCTS.find(x=>x.id===id); if(!p) return;
+    const row = state.cart.find(r=>r.id===id);
+    if(row) row.qty += qty; else state.cart.push({id, qty});
+    persist(); updateCartBadge(); flashCart();
+  }
+  function updateCartBadge(){
+    const count = state.cart.reduce((n,r)=>n+r.qty,0);
+    $('#cartCount').textContent = count;
+  }
+  function lineTotal(row){
+    const p = PRODUCTS.find(x=>x.id===row.id); return p.price * row.qty;
+  }
+  function renderCart(){
+    const list = $('#cartList'); list.innerHTML = '';
+    if(!state.cart.length){
+      list.innerHTML = '<p style="color:var(--muted)">Tu carrito está vacío.</p>'; updateTotals(); return;
+    }
+    state.cart.forEach(r=>{
+      const p = PRODUCTS.find(x=>x.id===r.id);
+      const li = document.createElement('div'); li.className = 'cart-item';
+      li.innerHTML = `
+        <img alt="${p.name}" src="${p.img}" width="64" height="64"/>
+        <div>
+          <strong>${p.name}</strong>
+          <div class="price">${CLP(p.price)} · <span style='color:var(--muted)'>${CLP(lineTotal(r))}</span></div>
+          <div class="qty">
+            <button data-minus="${r.id}">−</button>
+            <span>${r.qty}</span>
+            <button data-plus="${r.id}">+</button>
+          </div>
+        </div>
+        <button class="icon-btn" title="Quitar" data-del="${r.id}">🗑️</button>`;
+      list.appendChild(li);
+    })
+    $$('button[data-plus]').forEach(b=> b.onclick = ()=> { const row=state.cart.find(r=>r.id===b.dataset.plus); row.qty++; persist(); renderCart(); updateCartBadge(); });
+    $$('button[data-minus]').forEach(b=> b.onclick = ()=> { const row=state.cart.find(r=>r.id===b.dataset.minus); row.qty=Math.max(1,row.qty-1); persist(); renderCart(); updateCartBadge(); });
+    $$('button[data-del]').forEach(b=> b.onclick = ()=> { state.cart = state.cart.filter(r=>r.id!==b.dataset.del); persist(); renderCart(); updateCartBadge(); });
+    updateTotals();
+  }
+  function updateTotals(){
+    const subtotal = state.cart.reduce((n,r)=> n + lineTotal(r), 0);
+    const shipping = state.cart.length ? 3990 : 0;
+    $('#subtotal').textContent = CLP(subtotal);
+    $('#shipping').textContent = CLP(shipping);
+    $('#grand').textContent = CLP(subtotal + shipping);
+  }
+  function openCart(){ $('#drawer').classList.add('open'); $('#drawer').setAttribute('aria-hidden','false'); renderCart(); }
+  function closeCart(){ $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden','true'); }
+  function flashCart(){
+    const el = $('#openCart'); el.style.boxShadow = '0 0 0 6px rgba(0,229,255,.25)';
+    setTimeout(()=> el.style.boxShadow = '', 300);
+  }
+
+  // ---------- EVENTOS UI ----------
+  $('#openCart').onclick = openCart; $('#closeCart').onclick = closeCart;
+  $('#empty').onclick = ()=>{ state.cart = []; persist(); renderCart(); updateCartBadge(); };
+  $('#checkout').onclick = ()=>{
+    alert('Checkout demo. Aquí integrarías Webpay/Flow/Khipu/Paypal según preferencia.');
+  };
+
+  $('#q').addEventListener('input', (e)=>{ state.search = e.target.value; renderGrid(); });
+  $('#sort').addEventListener('change', (e)=>{ state.sort = e.target.value; renderGrid(); });
+  $('#clearFilters').onclick = ()=>{ state.category='todos'; state.search=''; state.sort='featured'; $('#q').value=''; $('#sort').value='featured'; draw(); };
+
+  // ---------- INIT ----------
+  renderCategories(); renderGrid(); updateCartBadge();
+  // Accesos rápidos
+  window.addEventListener('keydown', (e)=>{
+    // Ctrl/Cmd+K => buscar
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); $('#q').focus(); }
+    if(e.key==='Escape'){ closeCart(); if(modal.open) modal.close(); }
+  });
+  </script>
+</body>
+</html>

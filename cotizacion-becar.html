@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COT-2025-010 · Website Responsive · Becar & Becar Asociados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#2E2E2E; /* grafito */
+      --accent:#C2185B; /* magenta elegante */
+      --light:#F4F5F7;
+      --dark:#1A1A1A;
+      --card-bg:#FFFFFF;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Montserrat',sans-serif;background:var(--light);color:var(--dark);padding:40px}
+    .wrapper{max-width:1000px;margin:auto;display:flex;flex-direction:column;gap:32px}
+    header{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--accent);padding-bottom:24px}
+    .brand{display:flex;flex-direction:column}
+    .brand__name{font-size:1.5rem;font-weight:600;color:var(--accent)}
+    .brand__url{font-size:.9rem;color:var(--primary)}
+    .meta{text-align:right;font-size:.875rem;line-height:1.4}
+    .meta span{font-weight:600}
+    .grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+    .bento{background:var(--card-bg);border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,.05);padding:24px;display:flex;flex-direction:column;gap:12px}
+    .bento h3{font-size:1rem;font-weight:600;color:var(--accent)}
+    .bento p,.bento li{font-size:.92rem;line-height:1.5;color:var(--primary)}
+    .bento ul{list-style:none;padding-left:0}
+    .bento--full{grid-column:1/-1}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th,td{padding:6px 8px;text-align:left}
+    thead{background:var(--accent);color:#fff}
+    tbody tr:nth-child(even){background:#F9EAF1}
+    @media(max-width:600px){body{padding:20px}}
+  </style>
+</head>
+<body>
+  <section class="wrapper">
+    <header>
+      <div class="brand">
+        <span class="brand__name">Iván Espinoza</span>
+        <span class="brand__url">syzygy.metamedia.cl</span>
+      </div>
+      <div class="meta">
+        <div><span>Cotización Nº:</span> COT-2025-010</div>
+        <div><span>Fecha:</span> 30/07/2025</div>
+        <div><span>Validez:</span> 15 días</div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="bento">
+        <h3>Cliente</h3>
+        <p>Becar &amp; Becar Asociados<br>RUT: 76.123.194-4</p>
+      </div>
+
+      <div class="bento">
+        <h3>Proyecto</h3>
+        <p>Website Responsive (sitio optimizado para escritorio, tablet y móvil).</p>
+      </div>
+
+      <div class="bento bento--full">
+        <h3>Glosa / Honorarios</h3>
+        <table>
+          <thead>
+            <tr><th>Descripción</th><th>Bruto</th><th>Retención 14,5 %</th><th>Líquido</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Diseño y desarrollo de sitio responsive – entrega llave en mano</td><td>$292.398</td><td>$42.398</td><td>$250.000</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bento">
+        <h3>Incluye</h3>
+        <ul>
+          <li>Registro de dominio .cl (NIC Chile) por 1 año</li>
+          <li>Hosting por 12 meses</li>
+          <li>Diseño responsive (desktop, tablet, móvil)</li>
+          <li>Integración de redes sociales (Facebook, Instagram, LinkedIn)</li>
+          <li>Formulario de contacto</li>
+          <li>SEO on‑page básico (meta etiquetas, sitemap XML)</li>
+          <li>Copias de seguridad automáticas</li>
+          <li>Capas de seguridad estándar (firewall, anti‑spam)</li>
+        </ul>
+      </div>
+
+      <div class="bento">
+        <h3>Políticas de Pago</h3>
+        <p>50 % al aceptar la cotización (anticipo).<br>50 % contra entrega y aprobación del sitio en producción.<br>Transferencia electrónica.<br><strong>Tiempo estimado:</strong> 20 días hábiles a partir del pago inicial.</p>
+      </div>
+
+      <div class="bento">
+        <h3>Detalle de Pagos</h3>
+        <table>
+          <thead>
+            <tr><th>Hito</th><th>Bruto</th><th>Retención</th><th>Líquido</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Inicio (50 %)</td><td>$146.199</td><td>$21.199</td><td>$125.000</td></tr>
+            <tr><td>Término (50 %)</td><td>$146.199</td><td>$21.199</td><td>$125.000</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bento">
+        <h3>Datos Bancarios</h3>
+        <p>
+          <strong>Titular:</strong> Iván Espinoza<br>
+          <strong>RUT:</strong> 16.778.629-4<br>
+          <strong>Banco:</strong> Banco Falabella<br>
+          <strong>Tipo de cuenta:</strong> Cuenta Corriente<br>
+          <strong>Nº de cuenta:</strong> 1‑999‑407146‑6<br>
+          <strong>Email de notificación:</strong> ivanespinoza.ux@gmail.com</p>
+      </div>
+
+      <div class="bento">
+        <h3>Notas</h3>
+        <ul>
+          <li>Valores expresados en pesos chilenos (CLP).</li>
+          <li>Retención calculada según Ley 21.133 (14,5 % en 2025).</li>
+          <li>El plazo de 20 días hábiles se contabiliza desde el pago inicial y la entrega de todo material necesario.</li>
+          <li>Cambios de alcance se cotizarán aparte y requerirán aprobación.</li>
+        </ul>
+      </div>
+    </section>
+  </section>
+</body>
+</html>
