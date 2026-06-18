@@ -1,51 +1,665 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphic — Hub de Piezas</title>
+<meta name="description" content="Hub de piezas gráficas, dashboards, experimentos y prototipos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<style>
+  :root{
+    --bg:#0a0b0f;
+    --bg-soft:#0f1117;
+    --card:#13151c;
+    --card-hover:#171a23;
+    --border:#1f232e;
+    --border-hover:#2a2f3d;
+    --text:#e7e9ee;
+    --text-dim:#8b90a0;
+    --text-faint:#565b6b;
+    --radius:18px;
+    --c-panteon:#a78bfa;
+    --c-cafe:#f0b65c;
+    --c-demos:#5ad1c2;
+    --c-figma:#7aa6ff;
+    --c-inst:#74d49a;
+    --c-vstone:#ff8e9e;
+    --c-ubo:#9b9bff;
+    --c-docs:#e0a3ff;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 20% 0%, #11131c 0%, var(--bg) 45%);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- header ---------- */
+  header.hero{
+    padding:72px 6vw 40px;
+    max-width:1400px;
+    margin:0 auto;
+  }
+  .hero-tag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--text-dim);
+    border:1px solid var(--border);
+    padding:6px 12px;border-radius:999px;
+    margin-bottom:22px;
+  }
+  .hero-tag i{width:14px;height:14px;}
+  h1.hero-title{
+    font-size:clamp(32px,5vw,56px);
+    font-weight:800;
+    letter-spacing:-.02em;
+    margin:0 0 14px;
+    line-height:1.05;
+  }
+  h1.hero-title span{
+    background:linear-gradient(90deg,#fff,#9aa3c0);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  p.hero-sub{
+    font-size:16px;color:var(--text-dim);max-width:560px;line-height:1.6;margin:0;
+  }
+
+  /* ---------- filters ---------- */
+  .filters{
+    display:flex;flex-wrap:wrap;gap:10px;
+    padding:0 6vw 30px;
+    max-width:1400px;margin:0 auto;
+    position:sticky;top:0;z-index:30;
+    background:linear-gradient(var(--bg) 78%, transparent);
+    padding-top:14px;
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:13px;font-weight:500;color:var(--text-dim);
+    background:var(--card);border:1px solid var(--border);
+    padding:8px 14px;border-radius:999px;cursor:pointer;
+    transition:.2s ease;
+  }
+  .chip i{width:14px;height:14px;}
+  .chip:hover{border-color:var(--border-hover);color:var(--text);}
+  .chip.active{background:var(--text);color:#0a0b0f;border-color:var(--text);}
+
+  /* ---------- sections ---------- */
+  main{max-width:1400px;margin:0 auto;padding:10px 6vw 100px;}
+  section.group{margin-top:64px;}
+  section.group.is-filtered-out{display:none;}
+  .group-head{
+    display:flex;align-items:center;gap:14px;margin-bottom:22px;
+  }
+  .group-icon{
+    width:42px;height:42px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb, var(--accent) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    color:var(--accent);
+  }
+  .group-icon i{width:20px;height:20px;}
+  .group-titles h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.01em;}
+  .group-titles p{margin:2px 0 0;font-size:13px;color:var(--text-faint);}
+  .group-badge{
+    margin-left:auto;display:inline-flex;align-items:center;gap:6px;
+    font-size:11px;font-family:'JetBrains Mono',monospace;
+    color:var(--text-faint);border:1px dashed var(--border);
+    padding:5px 10px;border-radius:999px;
+  }
+  .group-badge i{width:12px;height:12px;}
+
+  /* ---------- bento grid ---------- */
+  .bento{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+  }
+  @media (max-width:980px){ .bento{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .bento{grid-template-columns:1fr;} }
+
+  .card{
+    position:relative;
+    grid-column:span 1;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    overflow:hidden;
+    cursor:pointer;
+    opacity:0;transform:translateY(18px);
+    transition:opacity .6s ease, transform .6s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .card.visible{opacity:1;transform:translateY(0);}
+  .card.span-2{grid-column:span 2;}
+  .card.row-2{grid-row:span 2;}
+  @media (max-width:560px){ .card.span-2{grid-column:span 1;} }
+
+  .card::before{
+    content:"";position:absolute;top:-40%;right:-40%;width:80%;height:80%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--accent) 28%, transparent), transparent 70%);
+    opacity:0;transition:opacity .35s ease;
+    pointer-events:none;
+  }
+  .card:hover{
+    border-color:color-mix(in srgb, var(--accent) 50%, var(--border));
+    background:var(--card-hover);
+    transform:translateY(-4px);
+    box-shadow:0 18px 40px -20px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .card:hover::before{opacity:1;}
+  .card:hover .card-icon{transform:scale(1.08) rotate(-4deg);}
+  .card:hover .card-arrow{transform:translate(3px,-3px);opacity:1;}
+
+  .card-icon{
+    width:46px;height:46px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+    background:color-mix(in srgb, var(--accent) 14%, transparent);
+    color:var(--accent);
+    transition:transform .3s ease;
+  }
+  .card-icon i{width:22px;height:22px;}
+  .card-row-2 .card-icon{width:58px;height:58px;}
+  .card-row-2 .card-icon i{width:28px;height:28px;}
+
+  .card h3{margin:0 0 6px;font-size:16px;font-weight:600;letter-spacing:-.01em;}
+  .card p.desc{margin:0;font-size:13px;color:var(--text-dim);line-height:1.55;}
+
+  .card-arrow{
+    position:absolute;top:20px;right:20px;
+    width:14px;height:14px;color:var(--text-faint);
+    opacity:0;transition:.25s ease;
+  }
+
+  .card-more{
+    margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;
+    position:relative;z-index:1;
+  }
+  .card-more a{
+    font-size:11px;color:var(--text-dim);
+    background:var(--bg-soft);border:1px solid var(--border);
+    padding:4px 9px;border-radius:999px;
+    transition:.2s ease;
+  }
+  .card-more a:hover{color:var(--text);border-color:var(--border-hover);}
+
+  /* ---------- locked cards ---------- */
+  .card.locked .card-body{filter:blur(5px);user-select:none;pointer-events:none;}
+  .card.locked.unlocked .card-body{filter:none;pointer-events:auto;}
+  .lock-badge{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:8px;
+    background:rgba(10,11,15,.45);backdrop-filter:blur(2px);
+    z-index:2;transition:opacity .25s ease;
+  }
+  .card.locked.unlocked .lock-badge{display:none;}
+  .lock-badge i{width:20px;height:20px;color:var(--text-dim);}
+  .lock-badge span{font-size:11px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(5,6,9,.7);
+    display:none;align-items:center;justify-content:center;z-index:100;
+    backdrop-filter:blur(4px);
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:28px;width:320px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+  }
+  .modal-icon{
+    width:40px;height:40px;border-radius:10px;
+    background:color-mix(in srgb, var(--accent) 16%, transparent);
+    color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+  }
+  .modal-icon i{width:18px;height:18px;}
+  .modal h4{margin:0 0 6px;font-size:15px;}
+  .modal p{margin:0 0 16px;font-size:12px;color:var(--text-dim);}
+  .modal input{
+    width:100%;background:var(--bg-soft);border:1px solid var(--border);
+    border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;margin-bottom:10px;
+    outline:none;
+  }
+  .modal input:focus{border-color:var(--border-hover);}
+  .modal-actions{display:flex;gap:8px;}
+  .modal button{
+    flex:1;border:none;border-radius:10px;padding:10px 12px;
+    font-size:13px;font-weight:600;cursor:pointer;transition:.2s ease;
+  }
+  .btn-primary{background:var(--text);color:#0a0b0f;}
+  .btn-primary:hover{opacity:.85;}
+  .btn-ghost{background:transparent;border:1px solid var(--border) !important;color:var(--text-dim);}
+  .btn-ghost:hover{color:var(--text);}
+  .modal-error{font-size:11px;color:#ff6b81;margin:-4px 0 10px;min-height:14px;}
+
+  footer{
+    text-align:center;padding:40px 0 60px;color:var(--text-faint);
+    font-size:12px;font-family:'JetBrains Mono',monospace;
+  }
+</style>
 </head>
 <body>
-    <h1>Vstone</h1>
-    <h2>blog 01</h2>
-    <a href="./vstone-abril-2025/Checklist-de-Preparacion-Express.html">blog-abril-2024-01</a> <br>
-    <a href="./vstone-abril-2025/infografia-vender.html">infografia vender</a><br>
-    <a href="./vstone-abril-2025/pantilla-anuncio-optimizado.html">plantilla anuncio optimizado</a><br>
-    <a href="./vstone-abril-2025/checklist-visitas.html">checklist visitas</a>
-    <h1>blog 02</h1>
-    <a href="./vstone-mayo-2025/calculadora.html">Calculadora</a> <br>
-    <a href="./vstone-mayo-2025/mapa-interactivo.html">mapa interactivo</a> <br>
-    <a href="./vstone-mayo-2025/mapa-interactivo-v2.html">mapa interactivo v2</a>
-    <a href="./vstone-mayo-2025/vstone-checklist-venta-documentos.html">checklist propiedades</a>
 
- 
-    <h1>reels</h1>
-    <a href="./vstone-abril-2025/guia-comprador.html">guia comprador</a>
+<header class="hero">
+  <div class="hero-tag"><i data-lucide="layout-grid"></i> graphic / hub interno</div>
+  <h1 class="hero-title"><span>Piezas, prototipos</span><br>y experimentos visuales.</h1>
+  <p class="hero-sub">Repositorio de trabajo gráfico: dashboards, landings, experimentos de interacción y documentos de cliente. Algunas piezas son de uso interno y permanecen bajo candado.</p>
+</header>
 
-    <h1>Figma</h1>
-    <a href="./componentes-figma/css-ia-driven-001/index.html">css-ia-driven-001</a>
+<nav class="filters" id="filters">
+  <span class="chip active" data-filter="all"><i data-lucide="asterisk"></i>Todo</span>
+  <span class="chip" data-filter="dashboard"><i data-lucide="layout-dashboard"></i>Dashboards</span>
+  <span class="chip" data-filter="landing"><i data-lucide="monitor"></i>Landing / Web</span>
+  <span class="chip" data-filter="doc"><i data-lucide="file-text"></i>Documentos</span>
+  <span class="chip" data-filter="experiment"><i data-lucide="sparkles"></i>Experimentos</span>
+  <span class="chip" data-filter="component"><i data-lucide="component"></i>Componentes</span>
+  <span class="chip" data-filter="private"><i data-lucide="lock"></i>Privado</span>
+</nav>
 
-    <h1>Klein</h1>
-    <a href="./UBO/gantt-ubotipy-abril.html">Gantt segunda fase</a>
-    <a href="./UBO/gantt-ubotipy-abril-v2.html">Gantt segunda fase corregido</a>
-    <a href="./UBO/dashboard-ejemplo_v1.html">Dashboard ejemplo </a> <br>
-    <a href="./UBO/dashboard-ejemplo_v3.html">tercer dashboard</a> <br>
-    <a href="./UBO/dashboard-ejemplo_v5.html">dashboard 5 (vistas gantt, kanban, calendario)</a><br>
-    <a href="./UBO/dashbaord-ejemplo_v6.html">dashboard 6 - todas las vistas, tareas, etc</a>
-    <a href="./UBO/indicaciones-dashboard.md">indicaciones funciones dashboard mockup</a>
-    <h1>Panteon</h1>
-    <a href="./proyectos-ai-driven/index.html">Panteon</a> <br>
-    <hr>
-    <a href="./UBO/STUB-Dashboard-UBO-insight.html">stub dashboard UBO insight</a>
+<main>
 
-    <h1>Proyectos AI Driven</h1>
-    <a href="./proyectos-ai-driven/ilusion-fresnel.html">Ilusión Fresnel</a> <br>
-    <a href="./proyectos-ai-driven/ilusion-fresnel-v2.html">Ilusión Fresnel v2</a> <br>
+  <!-- PANTEÓN AI-DRIVEN -->
+  <section class="group" style="--accent:var(--c-panteon)" data-tags="experiment">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="sparkles"></i></div>
+      <div class="group-titles">
+        <h2>Panteón — AI Driven</h2>
+        <p>Experimentos de interacción y composición visual</p>
+      </div>
+      <span class="group-badge"><i data-lucide="globe"></i>público</span>
+    </div>
+    <div class="bento">
+      <a class="card span-2 row-2" data-tags="experiment" href="./proyectos-ai-driven/ilusion-fresnel.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="eye"></i></div>
+          <h3>Ilusión Fresnel</h3>
+          <p class="desc">Experimento de percepción visual con capas, profundidad y movimiento sutil al hacer scroll.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+      <a class="card" data-tags="experiment" href="./proyectos-ai-driven/panteon-C006--tercios-pivot.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="scan"></i></div>
+          <h3>Tercios &amp; Viewport</h3>
+          <p class="desc">Composición por tercios con pivote responsivo.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+      <a class="card" data-tags="experiment component" href="./proyectos-ai-driven/panteon-C009--toggles-y-offcanvas.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="panel-right"></i></div>
+          <h3>Toggles &amp; Offcanvas</h3>
+          <p class="desc">Microinteracciones de paneles deslizantes.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+      <a class="card" data-tags="experiment" href="./proyectos-ai-driven/panteon-C010--integrar.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="puzzle"></i></div>
+          <h3>Integración final</h3>
+          <p class="desc">Ensamblaje de los módulos C001–C009 en una sola pieza.</p>
+          <div class="card-more">
+            <a href="./proyectos-ai-driven/panteon-C001.html">C001</a>
+            <a href="./proyectos-ai-driven/panteon-C002--tercios-pivot.html">C002</a>
+            <a href="./proyectos-ai-driven/panteon-C007--tercios-pivot.html">C007</a>
+            <a href="./proyectos-ai-driven/panteon-C008--tercios-pivot.html">C008</a>
+          </div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+    </div>
+  </section>
 
+  <!-- CAFE OTAKU -->
+  <section class="group" style="--accent:var(--c-cafe)" data-tags="landing">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="coffee"></i></div>
+      <div class="group-titles">
+        <h2>Café Otaku</h2>
+        <p>Caso de estudio — landing temática</p>
+      </div>
+      <span class="group-badge"><i data-lucide="globe"></i>público</span>
+    </div>
+    <div class="bento">
+      <a class="card span-2" data-tags="landing" href="./cafe-otaku/index.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="coffee"></i></div>
+          <h3>Landing Café Otaku</h3>
+          <p class="desc">Diseño de marca y layout para cafetería temática anime/manga.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+    </div>
+  </section>
 
+  <!-- DEMOS EDUCATIVOS / UX -->
+  <section class="group" style="--accent:var(--c-demos)" data-tags="landing experiment">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="graduation-cap"></i></div>
+      <div class="group-titles">
+        <h2>Demos &amp; UX</h2>
+        <p>Ejercicios educativos y prototipos de interacción</p>
+      </div>
+      <span class="group-badge"><i data-lucide="globe"></i>público</span>
+    </div>
+    <div class="bento">
+      <a class="card" data-tags="landing" href="./Desafio-Latam/web20.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="globe"></i></div>
+          <h3>Desafío Latam — Web 2.0</h3>
+          <p class="desc">Maquetación responsive, segunda iteración.</p>
+          <div class="card-more"><a href="./Desafio-Latam/web10.html">v1.0</a></div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+      <a class="card" data-tags="experiment" href="./stub-instagram-front-ux.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="image"></i></div>
+          <h3>Mini-feed Instagram-like</h3>
+          <p class="desc">Stub de feed con UX inspirada en Instagram.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+      <a class="card" data-tags="experiment" href="./biobio/stub-carruseles.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="gallery-horizontal"></i></div>
+          <h3>Carrusel accesible</h3>
+          <p class="desc">Demo de accesibilidad con fallback multi-proxy.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+      <a class="card" data-tags="landing" href="./emmanuelv2.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="book-open"></i></div>
+          <h3>Colegio Cristiano — Valores</h3>
+          <p class="desc">Pieza institucional educativa.</p>
+          <div class="card-more"><a href="./emmanuel.html">v1</a></div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+    </div>
+  </section>
 
-    <h1>Desafio Latam demo</h1>
-    <a href="./Desafio-Latam/web10.html">web 1.0</a>
-    <a href="./Desafio-Latam/web20.html">web 2.0</a>
+  <!-- COMPONENTES FIGMA -->
+  <section class="group" style="--accent:var(--c-figma)" data-tags="component">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="layers"></i></div>
+      <div class="group-titles">
+        <h2>Componentes</h2>
+        <p>Sistemas de UI exportados desde Figma</p>
+      </div>
+      <span class="group-badge"><i data-lucide="globe"></i>público</span>
+    </div>
+    <div class="bento">
+      <a class="card span-2" data-tags="component" href="./componentes-figma/css-ia-driven-001/index.html">
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="component"></i></div>
+          <h3>CSS IA-Driven 001</h3>
+          <p class="desc">Set de tarjetas de modalidad de trabajo (full-time, part-time, por proyecto).</p>
+          <div class="card-more">
+            <a href="./componentes-figma/css-ia-driven-001/Trabajo-Full-Time.html">Full-Time</a>
+            <a href="./componentes-figma/css-ia-driven-001/Trabajo-Part-Time.html">Part-Time</a>
+            <a href="./componentes-figma/css-ia-driven-001/Trabajo-por-Proyecto.html">Por Proyecto</a>
+          </div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- VSTONE (PRIVADO) -->
+  <section class="group" style="--accent:var(--c-vstone)" data-tags="private doc">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="home"></i></div>
+      <div class="group-titles">
+        <h2>Vstone — Inmobiliaria</h2>
+        <p>Material de cliente: checklists, calculadoras y documentos</p>
+      </div>
+      <span class="group-badge"><i data-lucide="lock"></i>privado</span>
+    </div>
+    <div class="bento">
+      <div class="card locked" data-tags="private doc" data-href="./vstone-abril-2025/infografia-vender.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="clipboard-check"></i></div>
+          <h3>Checklists &amp; guías</h3>
+          <p class="desc">Infografía para vender, plantilla de anuncio y checklist de visitas.</p>
+          <div class="card-more">
+            <a href="./vstone-abril-2025/pantilla-anuncio-optimizado.html">Anuncio</a>
+            <a href="./vstone-abril-2025/checklist-visitas.html">Visitas</a>
+            <a href="./vstone-abril-2025/guia-comprador.html">Guía comprador</a>
+          </div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+      <div class="card locked" data-tags="private" data-href="./vstone-mayo-2025/calculadora.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="calculator"></i></div>
+          <h3>Calculadora de costos</h3>
+          <p class="desc">Herramienta interactiva de cálculo para venta de propiedades.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+      <div class="card locked" data-tags="private" data-href="./vstone-mayo-2025/mapa-interactivo-v2.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="map"></i></div>
+          <h3>Mapa interactivo</h3>
+          <p class="desc">Visualización geográfica de propiedades, v2.</p>
+          <div class="card-more"><a href="./vstone-mayo-2025/mapa-interactivo.html">v1</a></div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+      <div class="card locked" data-tags="private doc" data-href="./vstone-mayo-2025/vstone-checklist-venta-documentos.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="file-text"></i></div>
+          <h3>Documentos legales</h3>
+          <p class="desc">Avalúo fiscal, regularización de lote, certificado médico y guía de herencias.</p>
+          <div class="card-more">
+            <a href="./vstone-mayo-2025/avaluo-fiscal.html">Avalúo</a>
+            <a href="./vstone-mayo-2025/regularizar-lote.html">Lote</a>
+            <a href="./vstone-mayo-2025/vstone-certificado-medico.html">Certificado</a>
+            <a href="./vstone-mayo-2025/vstone-guia-herencias.html">Herencias</a>
+          </div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- UBO / KLEIN (PRIVADO) -->
+  <section class="group" style="--accent:var(--c-ubo)" data-tags="private dashboard">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="layout-dashboard"></i></div>
+      <div class="group-titles">
+        <h2>UBO — Klein</h2>
+        <p>Dashboards y gestión de proyectos</p>
+      </div>
+      <span class="group-badge"><i data-lucide="lock"></i>privado</span>
+    </div>
+    <div class="bento">
+      <div class="card locked span-2 row-2" data-tags="private dashboard" data-href="./UBO/dashbaord-ejemplo_v6.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="layout-dashboard"></i></div>
+          <h3>Dashboard de gestión (v6)</h3>
+          <p class="desc">Vistas de Gantt, Kanban y calendario integradas, con roles y persistencia local.</p>
+          <div class="card-more">
+            <a href="./UBO/dashboard-ejemplo_v1.html">v1</a>
+            <a href="./UBO/dashboard-ejemplo_v3.html">v3</a>
+            <a href="./UBO/dashboard-ejemplo_v5.html">v5</a>
+            <a href="./UBO/dashboard-siete.html">"siete"</a>
+          </div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+      <div class="card locked" data-tags="private dashboard" data-href="./UBO/gantt-ubotipy-abril-v2.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="calendar-range"></i></div>
+          <h3>Gantt — segunda fase</h3>
+          <p class="desc">Planificación corregida, v2.</p>
+          <div class="card-more"><a href="./UBO/gantt-ubotipy-abril.html">v1</a></div>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+      <div class="card locked" data-tags="private dashboard" data-href="./UBO/STUB-Dashboard-UBO-insight.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="bar-chart-3"></i></div>
+          <h3>Stub Dashboard Insight</h3>
+          <p class="desc">Prototipo temprano de panel de indicadores.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCUMENTOS / COTIZACIONES (PRIVADO) -->
+  <section class="group" style="--accent:var(--c-docs)" data-tags="private doc">
+    <div class="group-head">
+      <div class="group-icon"><i data-lucide="file-text"></i></div>
+      <div class="group-titles">
+        <h2>Cotizaciones</h2>
+        <p>Documentos comerciales de cliente</p>
+      </div>
+      <span class="group-badge"><i data-lucide="lock"></i>privado</span>
+    </div>
+    <div class="bento">
+      <div class="card locked" data-tags="private doc" data-href="./cotizacion-becar.html">
+        <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
+        <div class="card-body">
+          <div class="card-icon"><i data-lucide="file-signature"></i></div>
+          <h3>Cotización — Becar &amp; Asociados</h3>
+          <p class="desc">Propuesta de website responsive.</p>
+        </div>
+        <i class="card-arrow" data-lucide="arrow-up-right"></i>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>graphic / hub interno — ivan espinoza</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon"><i data-lucide="lock"></i></div>
+    <h4>Pieza protegida</h4>
+    <p>Ingresa la clave para ver este grupo de piezas.</p>
+    <input type="password" id="modalPass" placeholder="••••••••" autocomplete="off">
+    <div class="modal-error" id="modalError"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn-primary" id="modalSubmit">Desbloquear</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- icons ---
+  window.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+
+  // --- password gate ---
+  // Para cambiar la clave: en la consola del navegador ejecuta
+  //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('tu-nueva-clave'))
+  //     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+  // y reemplaza el valor de PASSWORD_HASH por el resultado.
+  const PASSWORD_HASH = '82e5672c398da9e2933fde6ada84545321da70ca06f9cb8100d6d225a857e8d4';
+  const UNLOCK_KEY = 'graphic_hub_unlocked';
+
+  async function sha256(text){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  const overlay = document.getElementById('modalOverlay');
+  const passInput = document.getElementById('modalPass');
+  const errorEl = document.getElementById('modalError');
+  let pendingCard = null;
+
+  function isUnlocked(){ return sessionStorage.getItem(UNLOCK_KEY) === '1'; }
+
+  function openModal(card){
+    pendingCard = card;
+    errorEl.textContent = '';
+    passInput.value = '';
+    overlay.classList.add('open');
+    setTimeout(() => passInput.focus(), 50);
+  }
+  function closeModal(){ overlay.classList.remove('open'); pendingCard = null; }
+
+  async function tryUnlock(){
+    const hash = await sha256(passInput.value);
+    if (hash === PASSWORD_HASH){
+      sessionStorage.setItem(UNLOCK_KEY, '1');
+      document.querySelectorAll('.card.locked').forEach(c => c.classList.add('unlocked'));
+      closeModal();
+      if (pendingCard) window.location.href = pendingCard.dataset.href;
+    } else {
+      errorEl.textContent = 'Clave incorrecta.';
+    }
+  }
+
+  document.getElementById('modalSubmit').addEventListener('click', tryUnlock);
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  passInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  document.querySelectorAll('.card.locked').forEach(card => {
+    card.addEventListener('click', () => {
+      if (isUnlocked() || card.classList.contains('unlocked')){
+        window.location.href = card.dataset.href;
+      } else {
+        openModal(card);
+      }
+    });
+  });
+  if (isUnlocked()) document.querySelectorAll('.card.locked').forEach(c => c.classList.add('unlocked'));
+
+  // --- filters ---
+  const chips = document.querySelectorAll('.chip');
+  const cards = document.querySelectorAll('.card');
+  const groups = document.querySelectorAll('section.group');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const f = chip.dataset.filter;
+      cards.forEach(card => {
+        const match = f === 'all' || (card.dataset.tags || '').split(' ').includes(f);
+        card.style.display = match ? '' : 'none';
+      });
+      groups.forEach(g => {
+        const visibleCards = g.querySelectorAll('.card').length
+          ? [...g.querySelectorAll('.card')].some(c => c.style.display !== 'none')
+          : true;
+        g.classList.toggle('is-filtered-out', !visibleCards);
+      });
+    });
+  });
+
+  // --- scroll reveal ---
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting){
+        setTimeout(() => entry.target.classList.add('visible'), i * 40);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: .15 });
+  cards.forEach(card => observer.observe(card));
+</script>
 </body>
 </html>
