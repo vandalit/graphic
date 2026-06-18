@@ -120,6 +120,7 @@
   .bento{
     display:grid;
     grid-template-columns:repeat(4,1fr);
+    grid-auto-flow:dense;
     gap:16px;
   }
   @media (max-width:980px){ .bento{grid-template-columns:repeat(2,1fr);} }
@@ -139,7 +140,7 @@
   }
   .card.visible{opacity:1;transform:translateY(0);}
   .card.span-2{grid-column:span 2;}
-  .card.row-2{grid-row:span 2;}
+  .card.featured{padding:30px;}
   @media (max-width:560px){ .card.span-2{grid-column:span 1;} }
 
   .card::before{
@@ -166,8 +167,8 @@
     transition:transform .3s ease;
   }
   .card-icon i{width:22px;height:22px;}
-  .card-row-2 .card-icon{width:58px;height:58px;}
-  .card-row-2 .card-icon i{width:28px;height:28px;}
+  .card.featured .card-icon{width:58px;height:58px;}
+  .card.featured .card-icon i{width:28px;height:28px;}
 
   .card h3{margin:0 0 6px;font-size:16px;font-weight:600;letter-spacing:-.01em;}
   .card p.desc{margin:0;font-size:13px;color:var(--text-dim);line-height:1.55;}
@@ -277,7 +278,7 @@
       <span class="group-badge"><i data-lucide="globe"></i>público</span>
     </div>
     <div class="bento">
-      <a class="card span-2 row-2" data-tags="experiment" href="./proyectos-ai-driven/ilusion-fresnel.html">
+      <a class="card span-2 featured" data-tags="experiment" href="./proyectos-ai-driven/ilusion-fresnel.html">
         <div class="card-body">
           <div class="card-icon"><i data-lucide="eye"></i></div>
           <h3>Ilusión Fresnel</h3>
@@ -488,7 +489,7 @@
       <span class="group-badge"><i data-lucide="lock"></i>privado</span>
     </div>
     <div class="bento">
-      <div class="card locked span-2 row-2" data-tags="private dashboard" data-href="./UBO/dashbaord-ejemplo_v6.html">
+      <div class="card locked span-2 featured" data-tags="private dashboard" data-href="./UBO/dashbaord-ejemplo_v6.html">
         <div class="lock-badge"><i data-lucide="lock"></i><span>protegido</span></div>
         <div class="card-body">
           <div class="card-icon"><i data-lucide="layout-dashboard"></i></div>
